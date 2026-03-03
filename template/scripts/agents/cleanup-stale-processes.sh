@@ -12,6 +12,15 @@ DRY_RUN="${DRY_RUN:-0}"
 
 now_epoch="$(date +%s)"
 
+file_mtime_epoch() {
+  local file="$1"
+  if stat -f %m "${file}" >/dev/null 2>&1; then
+    stat -f %m "${file}"
+    return 0
+  fi
+  stat -c %Y "${file}"
+}
+
 kill_tree() {
   local pid="$1"
   local label="$2"
@@ -116,7 +125,7 @@ cleanup_agent_supervisors() {
       continue
     fi
 
-    log_mtime="$(stat -f %m "${log_file}" 2>/dev/null || echo 0)"
+    log_mtime="$(file_mtime_epoch "${log_file}" 2>/dev/null || echo 0)"
     age_s=0
     if [ "${log_mtime}" -gt 0 ]; then
       age_s=$((now_epoch - log_mtime))

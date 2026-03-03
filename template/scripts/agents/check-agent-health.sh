@@ -17,6 +17,15 @@ PID_FILE="${RUN_DIR}/${PREFIX}.pid"
 LOG_FILE="${RUN_DIR}/${PREFIX}.log"
 LAST_FILE="${RUN_DIR}/${PREFIX}.last.txt"
 
+file_mtime_epoch() {
+  local file="$1"
+  if stat -f %m "${file}" >/dev/null 2>&1; then
+    stat -f %m "${file}"
+    return 0
+  fi
+  stat -c %Y "${file}"
+}
+
 running="no"
 pid=""
 if [ -f "${PID_FILE}" ]; then
@@ -30,7 +39,7 @@ log_size=0
 log_mtime=0
 if [ -f "${LOG_FILE}" ]; then
   log_size="$(wc -c < "${LOG_FILE}")"
-  log_mtime="$(stat -f %m "${LOG_FILE}")"
+  log_mtime="$(file_mtime_epoch "${LOG_FILE}")"
 fi
 
 now="$(date +%s)"

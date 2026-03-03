@@ -54,7 +54,17 @@ touch "${USAGE_FILE}"
 
 today="$(date +%Y-%m-%d)"
 month="$(date +%Y-%m)"
-week_start="$(date -v-6d +%Y-%m-%d)"
+
+date_days_ago_ymd() {
+  local days="$1"
+  if date -v-"${days}"d +%Y-%m-%d >/dev/null 2>&1; then
+    date -v-"${days}"d +%Y-%m-%d
+    return 0
+  fi
+  date -d "${days} days ago" +%Y-%m-%d
+}
+
+week_start="$(date_days_ago_ymd 6)"
 
 units_for_tier() {
   case "${1:-simple}" in
