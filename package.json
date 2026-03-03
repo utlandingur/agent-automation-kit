@@ -7,8 +7,9 @@
   "scripts": {
     "test:parity": "bash tests/parity.sh",
     "test:smoke": "bash tests/smoke.sh",
+    "test:portability": "bash tests/portability.sh",
     "test:npx": "bash tests/npx-pack.sh",
-    "test": "npm run test:parity && npm run test:smoke && npm run test:npx"
+    "test": "npm run test:parity && npm run test:smoke && npm run test:portability && npm run test:npx"
   },
   "bin": {
     "agent-automation-install": "bin/install.js",
