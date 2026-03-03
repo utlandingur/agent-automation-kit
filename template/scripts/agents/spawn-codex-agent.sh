@@ -3,7 +3,7 @@ set -euo pipefail
 
 if [ "$#" -ne 3 ]; then
   echo "Usage: $0 <ticket_id> <slug> <task_brief_path>"
-  echo "Example: $0 T012 guide-lockout docs/tasks/todo/T012-guide-lockout.md"
+  echo "Example: $0 T012 sample-task docs/tasks/todo/T012-sample-task.md"
   exit 1
 fi
 

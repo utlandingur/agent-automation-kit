@@ -26,7 +26,7 @@ Before first use, run:
 - Implementing/Review agents must not proceed in these domains unless explicitly marked critical by Task Lead.
 - For these domains, implementers/reviewers must escalate to lead and pause.
 - Task Lead is responsible for decision quality and must use authoritative references:
-  - Auth: Better Auth official docs
+  - Auth: official docs for the project's auth provider
   - Security/privacy: OWASP (ASVS + Cheat Sheets)
   - External APIs: official vendor docs
 

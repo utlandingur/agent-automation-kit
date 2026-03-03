@@ -11,7 +11,7 @@ Usage:
 
 Examples:
   scripts/agents/move-task-lane.sh T007 doing
-  scripts/agents/move-task-lane.sh docs/tasks/doing/T007-performance-history-ui.md done --ac-pass --tests-pass --evidence "main@abc123 (#77)"
+  scripts/agents/move-task-lane.sh docs/tasks/doing/T007-sample-task.md done --ac-pass --tests-pass --evidence "main@abc123 (#77)"
 EOF
 }
 

@@ -21,7 +21,7 @@ Required in every brief:
 - `UI Impact: Yes | No`
 - `Required Context` (minimal file list)
 - `Recommended Skills (Optional)` (up to 3 repo-local skills)
-- Prefer compact context docs (for example `docs/task-context-v0.md`) over broad docs.
+- Prefer compact context docs (for example `docs/task-context.md`) over broad docs.
 
 Lifecycle contract:
 - Stage must match folder lane exactly:

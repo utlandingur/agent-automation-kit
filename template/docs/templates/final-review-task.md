@@ -28,7 +28,7 @@ Run final feature review gate and produce a merge recommendation.
 
 ## Required Context
 - `docs/agent-runtime-rules.md`
-- `docs/task-context-v0.md`
+- `docs/task-context.md` (or equivalent task-specific context doc)
 - `docs/templates/final-review-checklist.md`
 - If UI Impact is `Yes`:
   - `docs/design-system.md`

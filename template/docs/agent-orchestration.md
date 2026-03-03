@@ -19,7 +19,7 @@ Authority:
 - Implementing/Review agents escalate uncertainty to lead and pause until resolved.
 - Hard-stop domains are lead-gated: implementer/reviewer must escalate and pause.
 - Lead must use authoritative references for hard-stop decisions:
-  - Better Auth docs (auth)
+  - official auth provider docs (auth)
   - OWASP ASVS/Cheat Sheets (security/privacy)
   - official vendor docs (external APIs)
 - Max hierarchy depth is strict:
@@ -102,12 +102,12 @@ Template:
 
 Example:
 ```bash
-bash scripts/agents/spawn-codex-agent.sh T012 guide-lockout docs/tasks/todo/T012-guide-lockout.md
+bash scripts/agents/spawn-codex-agent.sh T012 sample-task docs/tasks/todo/T012-sample-task.md
 ```
 
 Override above-80% pause only after explicit user approval:
 ```bash
-AGENT_ALLOW_OVER_80_PCT=1 bash scripts/agents/spawn-codex-agent.sh T012 guide-lockout docs/tasks/todo/T012-guide-lockout.md
+AGENT_ALLOW_OVER_80_PCT=1 bash scripts/agents/spawn-codex-agent.sh T012 sample-task docs/tasks/todo/T012-sample-task.md
 ```
 
 ## Monitoring

@@ -60,7 +60,7 @@ Use this file as the default rule source during task execution.
 - For complex domains, review current maintained libraries using official docs before implementing.
 - For simple tasks, do not add dependencies when direct code is sufficient.
 - Record major library choices in `docs/decisions/`.
-- Auth-specific requirement: prefer Better Auth and use official Better Auth docs for decisions.
+- Auth-specific requirement: use the project's chosen auth provider and its official docs for decisions.
 - Security-specific requirement: use OWASP guidance (ASVS + relevant Cheat Sheets).
 
 ## Tool Contract Quality

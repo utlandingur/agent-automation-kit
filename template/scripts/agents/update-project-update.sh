@@ -124,11 +124,11 @@ pie showData
 \`\`\`
 
 ## MVP Status
-- MVP scope tasks (\`T001\`-\`T021\`) are in \`done\`.
-- Current validation baseline: \`yarn lint\`, \`yarn test\`, and \`yarn build\` passing on latest merged wave.
+- Define MVP scope explicitly in your project docs and track completion against that scope.
+- Current validation baseline should reference your project's required checks.
 
 ## PM Review Rhythm
-- Weekly KPI review playbook: \`docs/kpi-review-playbook.md\`
+- Weekly KPI review playbook: \`<link your project KPI review doc>\`
 
 ## Remaining Queue
 EOF

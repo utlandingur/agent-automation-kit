@@ -3,7 +3,7 @@ set -euo pipefail
 
 if [ "$#" -lt 1 ]; then
   echo "Usage: $0 <ticket-slug-prefix>"
-  echo "Example: $0 T009-foundation-hardening"
+  echo "Example: $0 T001-sample-task"
   exit 1
 fi
 
