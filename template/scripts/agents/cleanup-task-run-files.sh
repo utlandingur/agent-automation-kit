@@ -3,7 +3,7 @@ set -euo pipefail
 
 if [ "$#" -lt 1 ]; then
   echo "Usage: $0 <ticket-slug-prefix>"
-  echo "Example: $0 T014-core-quiz-navigation-e2e-guard"
+  echo "Example: $0 T014-navigation-e2e-guard"
   exit 1
 fi
 

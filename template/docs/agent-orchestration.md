@@ -59,21 +59,21 @@ When adding agents:
 11. Recommended Skills (optional, up to 3 repo-local skill paths)
 
 Template:
-- [`docs/templates/task-brief.md`](/Users/lukehening/Sites/repos/moolang/docs/templates/task-brief.md)
+- [`docs/templates/task-brief.md`](docs/templates/task-brief.md)
 - Default minimal rules file:
-  - [`docs/agent-runtime-rules.md`](/Users/lukehening/Sites/repos/moolang/docs/agent-runtime-rules.md)
+  - [`docs/agent-runtime-rules.md`](docs/agent-runtime-rules.md)
   - For UI tasks include:
-    - [`docs/design-system.md`](/Users/lukehening/Sites/repos/moolang/docs/design-system.md)
-    - [`docs/frontend-standards.md`](/Users/lukehening/Sites/repos/moolang/docs/frontend-standards.md)
+    - [`docs/design-system.md`](docs/design-system.md)
+    - [`docs/frontend-standards.md`](docs/frontend-standards.md)
   - For complex-domain tasks include:
-    - [`docs/library-selection.md`](/Users/lukehening/Sites/repos/moolang/docs/library-selection.md)
+    - [`docs/library-selection.md`](docs/library-selection.md)
 
 ## Branch/Isolation
 - Branch format: `codex/<ticket-id>-<slug>`
-- Use isolated worktrees: `.../moolang-worktrees/<ticket-id>-<slug>`
+- Use isolated worktrees: `${AGENT_WORKTREE_ROOT:-../agent-worktrees}/<ticket-id>-<slug>`
 
 ## Spawn Script
-- [`scripts/agents/spawn-codex-agent.sh`](/Users/lukehening/Sites/repos/moolang/scripts/agents/spawn-codex-agent.sh)
+- [`scripts/agents/spawn-codex-agent.sh`](scripts/agents/spawn-codex-agent.sh)
 - Lead (or user) only.
 - Global concurrency cap is enforced at spawn time (default: 3 running agents).
 - Override with `MAX_CONCURRENT_AGENTS=<n>` only when justified.
@@ -124,7 +124,7 @@ Reliability behavior:
   - `scripts/agents/cleanup-task-run-files.sh <ticket-slug-prefix>`
 
 Communication protocol:
-- [`docs/agent-communication.md`](/Users/lukehening/Sites/repos/moolang/docs/agent-communication.md)
+- [`docs/agent-communication.md`](docs/agent-communication.md)
 - Ask lead: `scripts/agents/ask-lead.sh`
 - Lead reply: `scripts/agents/reply-lead.sh`
 
@@ -180,14 +180,14 @@ UI design quality gate:
 - Must include: scope, changes, tests run, risks/follow-ups.
 
 Template:
-- [`docs/templates/pr-description.md`](/Users/lukehening/Sites/repos/moolang/docs/templates/pr-description.md)
+- [`docs/templates/pr-description.md`](docs/templates/pr-description.md)
 - Final review templates:
-  - [`docs/templates/final-review-checklist.md`](/Users/lukehening/Sites/repos/moolang/docs/templates/final-review-checklist.md)
-  - [`docs/templates/final-review-task.md`](/Users/lukehening/Sites/repos/moolang/docs/templates/final-review-task.md)
+  - [`docs/templates/final-review-checklist.md`](docs/templates/final-review-checklist.md)
+  - [`docs/templates/final-review-task.md`](docs/templates/final-review-task.md)
 
 
 Sequential ship helper:
-- Use [`scripts/agents/ship-pr.sh`](/Users/lukehening/Sites/repos/moolang/scripts/agents/ship-pr.sh) to enforce serial `check -> commit -> push -> PR -> merge` execution and avoid commit/push race conditions.
+- Use [`scripts/agents/ship-pr.sh`](scripts/agents/ship-pr.sh) to enforce serial `check -> commit -> push -> PR -> merge` execution and avoid commit/push race conditions.
 
 ## Merge Strategy
 - Task branches must target `staging` first (never direct to `main`).
@@ -197,15 +197,15 @@ Sequential ship helper:
   - `feature branch -> staging`
   - `staging -> main` via promotion PR
 - Use:
-  - [`scripts/agents/ship-pr.sh`](/Users/lukehening/Sites/repos/moolang/scripts/agents/ship-pr.sh) for feature branch shipping (defaults to `staging` and waits for required checks)
-  - [`scripts/agents/promote-staging-to-main.sh`](/Users/lukehening/Sites/repos/moolang/scripts/agents/promote-staging-to-main.sh) for promotion
-  - [`scripts/agents/ensure-staging-branch.sh`](/Users/lukehening/Sites/repos/moolang/scripts/agents/ensure-staging-branch.sh) auto-recreates `origin/staging` from `origin/main` when missing
+  - [`scripts/agents/ship-pr.sh`](scripts/agents/ship-pr.sh) for feature branch shipping (defaults to `staging` and waits for required checks)
+  - [`scripts/agents/promote-staging-to-main.sh`](scripts/agents/promote-staging-to-main.sh) for promotion
+  - [`scripts/agents/ensure-staging-branch.sh`](scripts/agents/ensure-staging-branch.sh) auto-recreates `origin/staging` from `origin/main` when missing
 - For feature streams, run an agent-managed final review task before final promote.
 - Final review must include screenshot verification for UI-impacting features.
 
 ## Decision Records
 - Major technical/UX decisions must be recorded in:
-  - [`docs/decisions/`](/Users/lukehening/Sites/repos/moolang/docs/decisions/)
+  - [`docs/decisions/`](docs/decisions/)
 - Decision note must merge with task PR or immediately linked PR.
 - Library-selection decisions for complex domains must also be recorded.
 

@@ -6,6 +6,13 @@
 - Output:
 - Priorities:
 
+## Design Pattern Baseline
+- Patterns:
+- References:
+
+## Architecture Guardrails
+- 
+
 ## Non-Negotiable Contracts
 - 
 

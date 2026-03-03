@@ -258,8 +258,8 @@ function main() {
   }
 
   console.log('Next steps:');
-  console.log('1) Open agents.md and tailor project-specific sections.');
-  console.log('2) Review docs/agent-project-alignment.md and fill docs/agent-project-profile.md.');
+  console.log('1) Initialize project context: scripts/agents/init-project-context.sh');
+  console.log('2) Review docs/agent-project-alignment.md and complete any remaining project-specific fields.');
   console.log('3) Validate scripts with: bash -n scripts/agents/*.sh && python3 -m py_compile scripts/agents/launch-agent-daemon.py');
 }
 

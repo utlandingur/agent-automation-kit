@@ -54,7 +54,7 @@ Use this file as the default rule source during task execution.
 
 ## Decision Logging
 - Record major technical/UX decisions in:
-  - [`docs/decisions/`](/Users/lukehening/Sites/repos/moolang/docs/decisions/)
+  - [`docs/decisions/`](docs/decisions/)
 
 ## Library Policy
 - For complex domains, review current maintained libraries using official docs before implementing.
@@ -80,16 +80,15 @@ Use this file as the default rule source during task execution.
 - You may read task-scoped implementation files listed in the brief (`Files/Areas`, `In Scope`) and their direct dependencies/imports needed to complete the task.
 - Do not read broader docs unless task brief explicitly requires them.
 - For UI-impacting tasks, task brief must include:
-  - [`docs/design-system.md`](/Users/lukehening/Sites/repos/moolang/docs/design-system.md)
-  - [`docs/style-guide-spectrum.md`](/Users/lukehening/Sites/repos/moolang/docs/style-guide-spectrum.md)
-  - [`docs/frontend-standards.md`](/Users/lukehening/Sites/repos/moolang/docs/frontend-standards.md)
-  - [`docs/agent-design-iteration.md`](/Users/lukehening/Sites/repos/moolang/docs/agent-design-iteration.md)
+  - [`docs/design-system.md`](docs/design-system.md)
+  - [`docs/frontend-standards.md`](docs/frontend-standards.md)
+  - [`docs/agent-design-iteration.md`](docs/agent-design-iteration.md)
   in “Required Context”.
 
 
 ## Skill Usage Policy
 - Prefer repo-local vendored skills from:
-  - [`docs/skills/README.md`](/Users/lukehening/Sites/repos/moolang/docs/skills/README.md)
+  - [`docs/skills/README.md`](docs/skills/README.md)
 - Load skills only when they are relevant to the task scope.
 - Keep skill context minimal:
   - read `SKILL.md` first
@@ -99,13 +98,13 @@ Use this file as the default rule source during task execution.
 
 ## Escalation Channel
 - Use:
-  - [`docs/agent-communication.md`](/Users/lukehening/Sites/repos/moolang/docs/agent-communication.md)
+  - [`docs/agent-communication.md`](docs/agent-communication.md)
 - Ask lead script:
   - `scripts/agents/ask-lead.sh <ticket_id> \"<question>\" \"<recommended_option>\"`
 
 ## UI Consistency Rules (when UI is in scope)
 - Use existing `components/ui/*` primitives before creating new ones.
-- Prefer Spectrum-aligned patterns/components for new UI work.
+- Prefer project-aligned patterns/components for new UI work.
 - Do not introduce new shadcn-specific layout patterns for net-new screens.
 - Use design tokens only; no hard-coded one-off styles.
 - Keep interaction patterns consistent with existing flows.

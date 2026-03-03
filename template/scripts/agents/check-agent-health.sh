@@ -3,14 +3,15 @@ set -euo pipefail
 
 if [ "$#" -lt 1 ]; then
   echo "Usage: $0 <ticket-slug-prefix>"
-  echo "Example: $0 T009-quiz-component-test-foundation"
+  echo "Example: $0 T009-foundation-hardening"
   exit 1
 fi
 
 PREFIX="$1"
 ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/../.." && pwd)"
 RUN_DIR="${ROOT}/.ops/agent-runs"
-WORKTREE_ROOT="$(cd "${ROOT}/.." && pwd)/moolang-worktrees"
+DEFAULT_WORKTREE_ROOT="$(cd "${ROOT}/.." && pwd)/agent-worktrees"
+WORKTREE_ROOT="${AGENT_WORKTREE_ROOT:-${DEFAULT_WORKTREE_ROOT}}"
 
 PID_FILE="${RUN_DIR}/${PREFIX}.pid"
 LOG_FILE="${RUN_DIR}/${PREFIX}.log"

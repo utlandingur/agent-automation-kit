@@ -7,6 +7,12 @@ Portable installer for agent orchestration scripts, docs, and policy baseline.
 node /absolute/path/to/agent-automation-kit/bin/install.js /absolute/path/to/target-repo
 ```
 
+After install, initialize project-specific context:
+```bash
+cd /absolute/path/to/target-repo
+scripts/agents/init-project-context.sh
+```
+
 Use `--force` to overwrite existing files.
 Use `--dry-run` to preview changes and `--check` for CI drift detection.
 
@@ -37,6 +43,7 @@ scripts/agents/update-agent-automation.sh /absolute/path/to/local/agent-automati
 ```
 
 The installer stores managed-file hashes in `.agent-automation/state.json` and only auto-updates files that were previously installed and remain unchanged locally.
+This means project-tailored files are preserved by default during safe updates.
 
 ## What gets installed
 - `agents.md`

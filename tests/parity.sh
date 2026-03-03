@@ -12,6 +12,7 @@ required=(
   "promote-staging-to-main.sh"
   "usage-guard.sh"
   "update-agent-automation.sh"
+  "init-project-context.sh"
   "launch-agent-daemon.py"
 )
 

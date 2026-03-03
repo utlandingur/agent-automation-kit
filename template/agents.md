@@ -1,17 +1,20 @@
 # AGENTS.md
 
-Purpose: Ship a reliable AI quiz app fast, with strict contracts and clean collaboration.
+Purpose: Ship this product reliably with strict contracts and clean collaboration.
+
+Before first use, run:
+- `scripts/agents/init-project-context.sh`
 
 ## Product Scope
-- Input: user text or extracted article content
-- Processing: chunking + AI generation + quiz logic
-- Output: structured learning material + interactive quiz UI
-- Priorities: predictable UX, schema integrity, low token usage
+- Input:
+- Processing:
+- Output:
+- Priorities:
 
 ## Non-Negotiable Contracts
-- Zod schemas are the source of truth across AI/server/client/storage.
-- AI output must stay compact and structured.
-- Any AI contract change must update together: schema, prompt, types, parsing, tests.
+- Keep data contracts in sync across server/client/storage layers.
+- Any contract change must update schema/types/parsing/tests together.
+- Do not silently change external behavior without documenting and testing it.
 
 ## Hard-Stop (Ask First)
 - DB schema/migrations/persisted formats
@@ -48,8 +51,8 @@ Purpose: Ship a reliable AI quiz app fast, with strict contracts and clean colla
 - Log concise metadata only.
 
 ## Validation Required
-- `yarn lint`
-- `yarn test`
+- `<LINT_COMMAND>`
+- `<UNIT_TEST_COMMAND>`
 - Plus required E2E for impacted flows
 
 ## Task/Branch Rules

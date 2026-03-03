@@ -3,7 +3,8 @@ set -euo pipefail
 
 REPO_ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/../.." && pwd)"
 RUN_DIR="${REPO_ROOT}/.ops/agent-runs"
-WORKTREE_ROOT="$(cd "${REPO_ROOT}/.." && pwd)/moolang-worktrees"
+DEFAULT_WORKTREE_ROOT="$(cd "${REPO_ROOT}/.." && pwd)/agent-worktrees"
+WORKTREE_ROOT="${AGENT_WORKTREE_ROOT:-${DEFAULT_WORKTREE_ROOT}}"
 
 STALE_AGENT_LOG_AGE_SECONDS="${STALE_AGENT_LOG_AGE_SECONDS:-1800}" # 30m
 STALE_VITEST_AGE_SECONDS="${STALE_VITEST_AGE_SECONDS:-900}" # 15m

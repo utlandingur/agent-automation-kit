@@ -11,12 +11,12 @@ Naming convention:
 - `T002-short-slug.md`
 
 Create each file from:
-- [`docs/templates/task-brief.md`](/Users/lukehening/Sites/repos/moolang/docs/templates/task-brief.md)
+- [`docs/templates/task-brief.md`](docs/templates/task-brief.md)
 
 Required in every brief:
 - `Lifecycle` with deterministic stage and unit estimate
 - `User Story` (one line, user-facing impact)
-- `Goal Alignment` with canonical goal IDs from `docs/product-spec.md`
+- `Goal Alignment` with canonical goal IDs from your project goals/spec file
 - `Dependencies` with `Status: READY | BLOCKED`
 - `UI Impact: Yes | No`
 - `Required Context` (minimal file list)
@@ -51,7 +51,7 @@ Skill recommendation rules:
 - Add `Recommended Skills (Optional)` only when it materially improves quality/speed.
 - Recommend at most 3 skills, using repo-local paths under `docs/skills/external/`.
 - Prefer narrow skills over broad catalogs to keep context windows small.
-- Canonical index: [`docs/skills/README.md`](/Users/lukehening/Sites/repos/moolang/docs/skills/README.md)
+- Canonical index: [`docs/skills/README.md`](docs/skills/README.md)
 
 Execution rules:
 - Do not start tasks marked `BLOCKED`.
@@ -63,7 +63,7 @@ Execution rules:
   - `docs/agent-communication.md`
 
 These briefs are inputs to:
-- [`scripts/agents/spawn-codex-agent.sh`](/Users/lukehening/Sites/repos/moolang/scripts/agents/spawn-codex-agent.sh)
+- [`scripts/agents/spawn-codex-agent.sh`](scripts/agents/spawn-codex-agent.sh)
 
 Lint task briefs:
 - `scripts/agents/lint-task-briefs.sh`
@@ -83,19 +83,3 @@ Usage monitoring:
 Final review assets:
 - `docs/templates/final-review-task.md`
 - `docs/templates/final-review-checklist.md`
-
-Pre-feature hardening sequence:
-- `T009` foundation
-- `T010` quiz hooks hardening (after `T009`)
-- `T011` quiz surface hardening (after `T009`)
-- `T012` generation entry hardening (after `T009`)
-- `T014` core quiz navigation E2E guard (after `T009`)
-- `T015` design direction screenshot review (after `T010`,`T011`,`T012`)
-- `T013` hardening review + go/no-go (after `T010`,`T011`,`T012`,`T014`,`T015`)
-
-Spectrum migration sequence:
-- `T018` migration foundation + audit
-- `T019` spectrum foundation wrappers (after `T018`)
-- `T020` create flow migration (after `T019`)
-- `T021` quiz surfaces migration (after `T019`)
-- `T022` dependency cleanup (after `T020`,`T021`)
