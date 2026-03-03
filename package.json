@@ -1,0 +1,26 @@
+{
+  "name": "agent-automation-kit",
+  "version": "0.1.0",
+  "description": "Portable agent automation installer for Codex-style task orchestration",
+  "license": "MIT",
+  "scripts": {
+    "test:parity": "bash tests/parity.sh",
+    "test:smoke": "bash tests/smoke.sh",
+    "test:npx": "bash tests/npx-pack.sh",
+    "test": "npm run test:parity && npm run test:smoke && npm run test:npx"
+  },
+  "bin": {
+    "agent-automation-install": "bin/install.js",
+    "agent-automation-init": "bin/install.js",
+    "agent-automation-update": "bin/install.js"
+  },
+  "files": [
+    "bin",
+    "template",
+    "README.md",
+    "tests"
+  ],
+  "engines": {
+    "node": ">=18"
+  }
+}
