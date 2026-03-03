@@ -4,12 +4,7 @@ Portable installer for agent orchestration scripts, docs, and policy baseline.
 
 ## Local usage
 ```bash
-node agent-automation/bin/install.js /absolute/path/to/target-repo
-```
-
-## After publishing to npm
-```bash
-npx --yes --package agent-automation-kit agent-automation-install /absolute/path/to/target-repo
+node /absolute/path/to/agent-automation-kit/bin/install.js /absolute/path/to/target-repo
 ```
 
 Use `--force` to overwrite existing files.
@@ -18,17 +13,27 @@ Use `--dry-run` to preview changes and `--check` for CI drift detection.
 ## Safe updates across repos
 Run this in each consumer repo to pull latest managed automation while preserving local edits:
 ```bash
-npx --yes --package agent-automation-kit@latest agent-automation-update .
+scripts/agents/update-agent-automation.sh https://github.com/<org>/agent-automation-kit.git
 ```
 
 If you want to overwrite all managed files:
 ```bash
-npx --yes --package agent-automation-kit@latest agent-automation-update . --force
+scripts/agents/update-agent-automation.sh https://github.com/<org>/agent-automation-kit.git --force
 ```
 
 CI drift check example:
 ```bash
-npx --yes --package agent-automation-kit@latest agent-automation-update . --check
+scripts/agents/update-agent-automation.sh https://github.com/<org>/agent-automation-kit.git --check
+```
+
+Pin to a branch or tag:
+```bash
+scripts/agents/update-agent-automation.sh https://github.com/<org>/agent-automation-kit.git v0.1.0
+```
+
+You can also pass a local clone path, but updates still come from that clone's `origin` remote (never from local files):
+```bash
+scripts/agents/update-agent-automation.sh /absolute/path/to/local/agent-automation-kit [branch-or-tag]
 ```
 
 The installer stores managed-file hashes in `.agent-automation/state.json` and only auto-updates files that were previously installed and remain unchanged locally.
@@ -37,7 +42,6 @@ The installer stores managed-file hashes in `.agent-automation/state.json` and o
 - `agents.md`
 - `scripts/agents/*`
 - core docs for orchestration/rules/templates
-- `.ops/*` runtime skeleton
 - alignment docs:
   - `docs/agent-project-alignment.md`
   - `docs/agent-project-profile.md`
