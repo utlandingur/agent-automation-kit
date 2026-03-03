@@ -1,31 +1,25 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/../.." && pwd)"
-PKG_ROOT="${ROOT}/agent-automation"
-TEMPLATE_SCRIPTS="${PKG_ROOT}/template/scripts/agents"
-KIT_SCRIPTS="${ROOT}/agent-kit/payload/scripts/agents"
-SOURCE_SCRIPTS="${ROOT}/scripts/agents"
+ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
+SCRIPTS_DIR="${ROOT}/template/scripts/agents"
 
-for dir in "${TEMPLATE_SCRIPTS}" "${KIT_SCRIPTS}" "${SOURCE_SCRIPTS}"; do
-  [ -d "${dir}" ] || { echo "[FAIL] missing directory: ${dir}"; exit 1; }
+[ -d "${SCRIPTS_DIR}" ] || { echo "[FAIL] missing scripts directory: ${SCRIPTS_DIR}"; exit 1; }
+
+required=(
+  "spawn-codex-agent.sh"
+  "ship-pr.sh"
+  "promote-staging-to-main.sh"
+  "usage-guard.sh"
+  "update-agent-automation.sh"
+  "launch-agent-daemon.py"
+)
+
+for file in "${required[@]}"; do
+  [ -f "${SCRIPTS_DIR}/${file}" ] || { echo "[FAIL] missing required script: ${file}"; exit 1; }
+  if [[ "${file}" == *.sh || "${file}" == "launch-agent-daemon.py" ]]; then
+    [ -x "${SCRIPTS_DIR}/${file}" ] || { echo "[FAIL] script is not executable: ${file}"; exit 1; }
+  fi
 done
 
-tmp_dir="$(mktemp -d /tmp/agent-automation-parity.XXXXXX)"
-trap 'rm -rf "${tmp_dir}"' EXIT
-
-find "${SOURCE_SCRIPTS}" -maxdepth 1 -type f -print | sed "s#^${SOURCE_SCRIPTS}/##" | sort >"${tmp_dir}/source.txt"
-find "${TEMPLATE_SCRIPTS}" -maxdepth 1 -type f -print | sed "s#^${TEMPLATE_SCRIPTS}/##" | sort >"${tmp_dir}/template.txt"
-find "${KIT_SCRIPTS}" -maxdepth 1 -type f -print | sed "s#^${KIT_SCRIPTS}/##" | sort >"${tmp_dir}/kit.txt"
-
-if ! diff -u "${tmp_dir}/source.txt" "${tmp_dir}/template.txt"; then
-  echo "[FAIL] agent-automation template scripts diverge from scripts/agents"
-  exit 1
-fi
-
-if ! diff -u "${tmp_dir}/source.txt" "${tmp_dir}/kit.txt"; then
-  echo "[FAIL] agent-kit payload scripts diverge from scripts/agents"
-  exit 1
-fi
-
-echo "[PASS] Script parity checks passed"
+echo "[PASS] Template parity checks passed"

@@ -1,20 +1,25 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/../.." && pwd)"
+ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 
-tmp_one="$(mktemp -d /tmp/agent-kit-smoke.XXXXXX)"
-tmp_two="$(mktemp -d /tmp/agent-automation-smoke.XXXXXX)"
-trap 'rm -rf "${tmp_one}" "${tmp_two}"' EXIT
+for mode in install update; do
+  tmp_target="$(mktemp -d /tmp/agent-automation-smoke.XXXXXX)"
+  trap 'rm -rf "${tmp_target}"' EXIT
 
-bash "${ROOT}/agent-kit/install.sh" "${tmp_one}" >/dev/null
-node "${ROOT}/agent-automation/bin/install.js" "${tmp_two}" >/dev/null
+  if [ "${mode}" = "install" ]; then
+    node "${ROOT}/bin/install.js" "${tmp_target}" >/dev/null
+  else
+    node "${ROOT}/bin/install.js" "${tmp_target}" --update >/dev/null
+  fi
 
-for target in "${tmp_one}" "${tmp_two}"; do
-  [ -f "${target}/agents.md" ] || { echo "[FAIL] missing agents.md in ${target}"; exit 1; }
-  [ -x "${target}/scripts/agents/spawn-codex-agent.sh" ] || { echo "[FAIL] missing executable spawn script in ${target}"; exit 1; }
-  [ -f "${target}/docs/agent-project-alignment.md" ] || { echo "[FAIL] missing alignment doc in ${target}"; exit 1; }
-  [ -f "${target}/docs/agent-project-profile.md" ] || { echo "[FAIL] missing project profile template in ${target}"; exit 1; }
+  [ -f "${tmp_target}/agents.md" ] || { echo "[FAIL] missing agents.md in ${tmp_target}"; exit 1; }
+  [ -x "${tmp_target}/scripts/agents/spawn-codex-agent.sh" ] || { echo "[FAIL] missing executable spawn script in ${tmp_target}"; exit 1; }
+  [ -x "${tmp_target}/scripts/agents/update-agent-automation.sh" ] || { echo "[FAIL] missing update helper script in ${tmp_target}"; exit 1; }
+  [ -f "${tmp_target}/docs/agent-project-alignment.md" ] || { echo "[FAIL] missing alignment doc in ${tmp_target}"; exit 1; }
+  [ -f "${tmp_target}/docs/agent-project-profile.md" ] || { echo "[FAIL] missing project profile template in ${tmp_target}"; exit 1; }
+
+  rm -rf "${tmp_target}"
 done
 
 echo "[PASS] Installer smoke checks passed"
