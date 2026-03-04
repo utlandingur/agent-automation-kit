@@ -49,6 +49,8 @@ Before first use, run:
 - No secrets or full user content in logs.
 - Debug logs behind env flags.
 - Log concise metadata only.
+- Use eval/trace ops guidance:
+  - [`docs/agent-evaluation.md`](docs/agent-evaluation.md)
 
 ## Validation Required
 - `<LINT_COMMAND>`

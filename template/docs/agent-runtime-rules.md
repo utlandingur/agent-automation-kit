@@ -19,6 +19,8 @@ Use this file as the default rule source during task execution.
   - `scripts/agents/orchestrator-status.sh --brief`
   - only report active work when status is `ACTIVE`.
 - If orchestrator is `IDLE` and no hard-stop/user-decision block exists, start next eligible task immediately.
+- For orchestration/script changes, generate an eval smoke report:
+  - `scripts/agents/run-eval-smoke.sh`
 
 ## Architecture Selection
 - Default to single-agent execution for tasks that do not require explicit specialization or isolation.

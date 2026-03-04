@@ -172,6 +172,10 @@ UI design quality gate:
   - silent-stop rate
   - retry frequency
   - token/cost trend
+- Generate baseline metrics with:
+  - `scripts/agents/run-eval-smoke.sh`
+- Export trace bundle for incidents/deep review with:
+  - `scripts/agents/export-agent-traces.sh`
 - Record results in decision note or linked PR summary.
 
 ## PR Rules
