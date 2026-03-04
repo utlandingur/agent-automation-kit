@@ -20,6 +20,8 @@ contains_text() {
 
 git clone --bare "${ROOT}" "${tmp_origin_dir}/kit.git" >/dev/null 2>&1
 git clone "${tmp_origin_dir}/kit.git" "${tmp_source}" >/dev/null 2>&1
+git -C "${tmp_source}" checkout -B main >/dev/null 2>&1
+git -C "${tmp_source}" push -u origin main >/dev/null 2>&1
 
 node "${ROOT}/bin/install.js" "${tmp_target}" >/dev/null
 
