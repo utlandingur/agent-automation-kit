@@ -20,7 +20,9 @@ for f in \
   "${RUN_DIR}/${RUN_NAME}.pid" \
   "${RUN_DIR}/${RUN_NAME}.log" \
   "${RUN_DIR}/${RUN_NAME}.last.txt" \
-  "${RUN_DIR}/${RUN_NAME}.prompt.txt"; do
+  "${RUN_DIR}/${RUN_NAME}.prompt.txt" \
+  "${RUN_DIR}/${RUN_NAME}.context.txt" \
+  "${RUN_DIR}/${RUN_NAME}.todo.md"; do
   if [ -f "${f}" ]; then
     rm -f "${f}"
     removed=$((removed + 1))

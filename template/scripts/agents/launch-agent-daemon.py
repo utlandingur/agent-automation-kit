@@ -3,6 +3,7 @@ import argparse
 import os
 import subprocess
 import sys
+import tempfile
 import time
 from typing import Optional
 
@@ -121,17 +122,43 @@ def _run_supervised(args: argparse.Namespace, supervisor_pid: int) -> int:
         if args.exec_mode == "full_auto":
             cmd.insert(2, "--full-auto")
 
-        with open(args.prompt_file, "rb") as in_f, open(args.log_file, "ab", buffering=0) as out_f:
-            proc = subprocess.Popen(
-                cmd,
-                stdin=in_f,
-                stdout=out_f,
-                stderr=subprocess.STDOUT,
-                cwd=args.workdir,
-                start_new_session=True,
-                close_fds=True,
+        prompt_path = args.prompt_file
+        temp_prompt_path = None
+        if attempt > 1:
+            strategy_index = (attempt - 2) % 3
+            strategy_notes = [
+                "Retry strategy: choose an alternative implementation path than previous attempts.",
+                "Retry strategy: add/adjust a failing test first, then implement the smallest fix.",
+                "Retry strategy: inspect recent failure output and explicitly avoid the last failed approach.",
+            ]
+            retry_suffix = (
+                "\n\n---\n"
+                f"Retry attempt {attempt}/{max_attempts}\n"
+                f"{strategy_notes[strategy_index]}\n"
             )
-            rc = proc.wait()
+            with open(args.prompt_file, "r", encoding="utf-8") as base_f:
+                base_prompt = base_f.read()
+            with tempfile.NamedTemporaryFile("w", delete=False, encoding="utf-8") as tmp_f:
+                tmp_f.write(base_prompt)
+                tmp_f.write(retry_suffix)
+                temp_prompt_path = tmp_f.name
+            prompt_path = temp_prompt_path
+
+        try:
+            with open(prompt_path, "rb") as in_f, open(args.log_file, "ab", buffering=0) as out_f:
+                proc = subprocess.Popen(
+                    cmd,
+                    stdin=in_f,
+                    stdout=out_f,
+                    stderr=subprocess.STDOUT,
+                    cwd=args.workdir,
+                    start_new_session=True,
+                    close_fds=True,
+                )
+                rc = proc.wait()
+        finally:
+            if temp_prompt_path and os.path.exists(temp_prompt_path):
+                os.unlink(temp_prompt_path)
 
         runtime = time.time() - start
         has_last = _has_last_message(args.last_file)

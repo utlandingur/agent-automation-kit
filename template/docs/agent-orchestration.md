@@ -123,6 +123,9 @@ AGENT_ALLOW_OVER_80_PCT=1 bash scripts/agents/spawn-codex-agent.sh T012 sample-t
 Reliability behavior:
 - Spawn uses detached supervisor launch to prevent silent process reaping.
 - If agent exits early/no completion message, supervisor retries automatically (bounded attempts) and writes failure note to `.last.txt` if unrecoverable.
+- Spawn writes deterministic run context + plan artifacts:
+  - `.ops/agent-runs/<ticket>-<slug>.context.txt`
+  - `.ops/agent-runs/<ticket>-<slug>.todo.md`
 - When lead deems task complete (merged to `main`), remove run artifacts immediately:
   - `scripts/agents/cleanup-task-run-files.sh <ticket-slug-prefix>`
 
@@ -179,6 +182,8 @@ UI design quality gate:
   - `scripts/agents/run-eval-smoke.sh`
 - Export trace bundle for incidents/deep review with:
   - `scripts/agents/export-agent-traces.sh`
+- Apply context-engineering checklist:
+  - [`docs/context-engineering.md`](docs/context-engineering.md)
 - Record results in decision note or linked PR summary.
 
 ## PR Rules
