@@ -14,6 +14,8 @@ required=(
   "update-agent-automation.sh"
   "init-project-context.sh"
   "launch-agent-daemon.py"
+  "run-eval-smoke.sh"
+  "export-agent-traces.sh"
 )
 
 for file in "${required[@]}"; do
