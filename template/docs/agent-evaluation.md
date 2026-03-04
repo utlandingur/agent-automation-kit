@@ -31,6 +31,8 @@ scripts/agents/export-agent-traces.sh --include-prompts
 - Eval report includes context-engineering signals:
   - context snapshot/plan/tool-state presence
   - context-pack presence and truncation count
+  - retry strategy usage events
+  - repeated-failure signature guardrail triggers
 
 ## Suggested CI Pattern
 - Run `scripts/agents/run-eval-smoke.sh` after integration tests.

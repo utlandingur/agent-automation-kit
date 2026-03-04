@@ -36,6 +36,8 @@ Status: implemented baseline
 Checks:
 - On retry attempts, launcher injects alternative-strategy instruction.
 - Retry instructions rotate between at least 3 strategy variants.
+- Retry strategy events are reported by eval smoke.
+- Repeated-failure signature guardrail triggers are reported by eval smoke.
 
 ## 5) Tool Exposure / State-Machine Discipline
 Status: implemented baseline

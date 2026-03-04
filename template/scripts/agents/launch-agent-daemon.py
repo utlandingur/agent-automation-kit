@@ -100,6 +100,9 @@ def _run_supervised(args: argparse.Namespace, supervisor_pid: int) -> int:
         f.write(str(supervisor_pid))
 
     max_attempts = args.max_restarts + 1
+    last_failure_signature: Optional[str] = None
+    repeated_failure_count = 0
+
     for attempt in range(1, max_attempts + 1):
         start = time.time()
         _write_log(args.log_file, f"launch attempt {attempt}/{max_attempts}")
@@ -143,6 +146,7 @@ def _run_supervised(args: argparse.Namespace, supervisor_pid: int) -> int:
                 tmp_f.write(retry_suffix)
                 temp_prompt_path = tmp_f.name
             prompt_path = temp_prompt_path
+            _write_log(args.log_file, f"retry_strategy={strategy_index + 1}")
 
         try:
             with open(prompt_path, "rb") as in_f, open(args.log_file, "ab", buffering=0) as out_f:
@@ -168,6 +172,23 @@ def _run_supervised(args: argparse.Namespace, supervisor_pid: int) -> int:
         if rc == 0 and has_last:
             _notify_orchestrator(args, "run_completed", attempt, rc, runtime, has_last)
             return 0
+
+        failure_signature = f"rc={rc}|has_last={int(has_last)}|runtime_lt_min={int(runtime < args.min_runtime_seconds)}"
+        if failure_signature == last_failure_signature:
+            repeated_failure_count += 1
+        else:
+            repeated_failure_count = 1
+            last_failure_signature = failure_signature
+        _write_log(
+            args.log_file,
+            f"failure_signature={failure_signature} repeat_count={repeated_failure_count}",
+        )
+        if repeated_failure_count >= args.max_repeated_failure_signature:
+            _write_log(
+                args.log_file,
+                f"repeat_failure_guardrail_triggered signature={failure_signature} threshold={args.max_repeated_failure_signature}",
+            )
+            break
 
         should_retry = attempt < max_attempts and (runtime < args.min_runtime_seconds or not has_last or rc != 0)
         if should_retry:
@@ -212,6 +233,7 @@ def main() -> int:
         choices=["concise", "detailed", "auto"],
     )
     parser.add_argument("--max-restarts", type=int, default=2)
+    parser.add_argument("--max-repeated-failure-signature", type=int, default=3)
     parser.add_argument("--min-runtime-seconds", type=int, default=20)
     parser.add_argument("--retry-delay-seconds", type=int, default=2)
     args = parser.parse_args()

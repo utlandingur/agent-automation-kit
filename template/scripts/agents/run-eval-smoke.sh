@@ -66,6 +66,10 @@ run_plans=0
 tool_state_files=0
 context_pack_files=0
 context_pack_truncated_runs=0
+retry_strategy_events=0
+failure_signature_events=0
+repeat_failure_guardrail_triggers=0
+max_failure_repeat_count=0
 
 if [ -d "${RUN_DIR}" ]; then
   for log_file in "${RUN_DIR}"/*.log; do
@@ -96,6 +100,17 @@ if [ -d "${RUN_DIR}" ]; then
       if rg -q "section\\..*\\.truncated=yes" "${context_pack_file}" 2>/dev/null; then
         context_pack_truncated_runs=$((context_pack_truncated_runs + 1))
       fi
+    fi
+    retry_strategy_events=$((retry_strategy_events + $(count_or_zero "retry_strategy=" "${log_file}")))
+    failure_signature_events=$((failure_signature_events + $(count_or_zero "failure_signature=" "${log_file}")))
+    repeat_failure_guardrail_triggers=$((repeat_failure_guardrail_triggers + $(count_or_zero "repeat_failure_guardrail_triggered" "${log_file}")))
+
+    run_max_repeat="$(awk -F'repeat_count=' '/failure_signature=/{split($2,a,/[^0-9]/); if (a[1] > max) max=a[1]} END {print max+0}' "${log_file}" 2>/dev/null)"
+    if [ -z "${run_max_repeat}" ]; then
+      run_max_repeat=0
+    fi
+    if [ "${run_max_repeat}" -gt "${max_failure_repeat_count}" ]; then
+      max_failure_repeat_count="${run_max_repeat}"
     fi
 
     if [ -s "${last_file}" ] && ! rg -q "stopped unexpectedly before completion" "${last_file}" 2>/dev/null; then
@@ -129,7 +144,11 @@ cat > "${OUT_JSON}" <<EOF_JSON
   "runPlans": ${run_plans},
   "toolStateFiles": ${tool_state_files},
   "contextPackFiles": ${context_pack_files},
-  "contextPackTruncatedRuns": ${context_pack_truncated_runs}
+  "contextPackTruncatedRuns": ${context_pack_truncated_runs},
+  "retryStrategyEvents": ${retry_strategy_events},
+  "failureSignatureEvents": ${failure_signature_events},
+  "repeatFailureGuardrailTriggers": ${repeat_failure_guardrail_triggers},
+  "maxFailureRepeatCount": ${max_failure_repeat_count}
 }
 EOF_JSON
 
@@ -150,6 +169,10 @@ cat > "${OUT_MD}" <<EOF_MD
 - Tool state files present: ${tool_state_files}
 - Context pack files present: ${context_pack_files}
 - Context pack truncated runs: ${context_pack_truncated_runs}
+- Retry strategy events: ${retry_strategy_events}
+- Failure signature events: ${failure_signature_events}
+- Repeat-failure guardrail triggers: ${repeat_failure_guardrail_triggers}
+- Max failure repeat count: ${max_failure_repeat_count}
 EOF_MD
 
 if [ "${REQUIRE_RUNS}" -eq 1 ] && [ "${total_runs}" -eq 0 ]; then
