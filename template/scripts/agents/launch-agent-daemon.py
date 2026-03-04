@@ -105,7 +105,6 @@ def _run_supervised(args: argparse.Namespace, supervisor_pid: int) -> int:
         cmd = [
             "codex",
             "exec",
-            "--full-auto",
             "--model",
             args.model,
             "-c",
@@ -119,6 +118,8 @@ def _run_supervised(args: argparse.Namespace, supervisor_pid: int) -> int:
             "--json",
             "-",
         ]
+        if args.exec_mode == "full_auto":
+            cmd.insert(2, "--full-auto")
 
         with open(args.prompt_file, "rb") as in_f, open(args.log_file, "ab", buffering=0) as out_f:
             proc = subprocess.Popen(
@@ -167,6 +168,12 @@ def main() -> int:
     parser.add_argument("--pid-file", required=True)
     parser.add_argument("--run-name", required=True)
     parser.add_argument("--notify-script", default="")
+    parser.add_argument(
+        "--exec-mode",
+        default="guarded",
+        choices=["guarded", "full_auto"],
+        help="guarded omits --full-auto; full_auto enables it explicitly",
+    )
     parser.add_argument(
         "--reasoning-effort",
         default="low",

@@ -30,6 +30,7 @@ REASONING_EFFORT_SIMPLE="${AGENT_REASONING_EFFORT_SIMPLE:-low}"
 REASONING_EFFORT_STANDARD="${AGENT_REASONING_EFFORT_STANDARD:-medium}"
 REASONING_EFFORT_COMPLEX="${AGENT_REASONING_EFFORT_COMPLEX:-high}"
 REASONING_SUMMARY_MODE="${AGENT_REASONING_SUMMARY_MODE:-concise}"
+AGENT_EXEC_MODE="${AGENT_EXEC_MODE:-guarded}"
 USAGE_GUARD="${REPO_ROOT}/scripts/agents/usage-guard.sh"
 DAEMON_LAUNCHER="${REPO_ROOT}/scripts/agents/launch-agent-daemon.py"
 NOTIFY_SCRIPT="${REPO_ROOT}/scripts/agents/notify-orchestrator.sh"
@@ -143,6 +144,14 @@ if ! command -v codex >/dev/null 2>&1; then
   echo "codex CLI not found in PATH"
   exit 1
 fi
+
+case "${AGENT_EXEC_MODE}" in
+  guarded|full_auto) ;;
+  *)
+    echo "Invalid AGENT_EXEC_MODE '${AGENT_EXEC_MODE}'. Allowed values: guarded | full_auto"
+    exit 1
+    ;;
+esac
 
 if ! command -v python3 >/dev/null 2>&1; then
   echo "python3 is required for detached agent launch"
@@ -312,6 +321,7 @@ PID="$(
     --notify-script "${NOTIFY_SCRIPT}" \
     --reasoning-effort "${REASONING_EFFORT}" \
     --reasoning-summary "${REASONING_SUMMARY_MODE}" \
+    --exec-mode "${AGENT_EXEC_MODE}" \
     --prompt-file "${PROMPT_FILE}" \
     --log-file "${LOG_FILE}" \
     --last-file "${LAST_FILE}" \
@@ -322,6 +332,7 @@ PID="$(
 echo "Spawned Codex agent"
 echo "- Task: ${TICKET_ID} (${SLUG})"
 echo "- Model tier/model: ${EFFECTIVE_TIER}/${MODEL_NAME}"
+echo "- Exec mode: ${AGENT_EXEC_MODE}"
 echo "- Branch: ${BRANCH}"
 echo "- Worktree: ${WORKTREE_DIR}"
 echo "- PID: ${PID}"

@@ -49,6 +49,7 @@ Use this file as the default rule source during task execution.
 - Default to cheapest acceptable model tier for assigned task.
 - Default to lower reasoning effort; increase only when blocked/struggling to solve correctly.
 - Escalate reasoning one step at a time, only for the minimum time needed, then drop back down.
+- Default to guarded execution mode (`AGENT_EXEC_MODE=guarded`); require explicit approval for `full_auto`.
 - Monitor usage with `scripts/agents/usage-guard.sh status`.
 - Pause new agent spawns when daily usage is above 80% unless user explicitly approves override.
 - Never run paid actions, purchases, billing upgrades, or accept terms/conditions.
