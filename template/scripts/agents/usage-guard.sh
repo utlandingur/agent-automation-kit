@@ -26,6 +26,7 @@ ALLOW_OVER_80_PCT="${AGENT_ALLOW_OVER_80_PCT:-0}"
 UNIT_SIMPLE="${AGENT_USAGE_UNITS_SIMPLE:-1}"
 UNIT_STANDARD="${AGENT_USAGE_UNITS_STANDARD:-3}"
 UNIT_COMPLEX="${AGENT_USAGE_UNITS_COMPLEX:-6}"
+PROJECT_UPDATE_FILE="${REPO_ROOT}/docs/project-update.md"
 
 derive_daily_budget() {
   local monthly derived
@@ -87,10 +88,11 @@ ceil_div() {
 }
 
 effective_daily_budget() {
-  local d w_per_day m_per_day eff
+  local d w_per_day m_per_day project_cap eff
   d="${DAILY_BUDGET_UNITS}"
   w_per_day="$(ceil_div "${WEEKLY_BUDGET_UNITS}" 7)"
   m_per_day="$(ceil_div "${MONTHLY_BUDGET_UNITS}" 30)"
+  project_cap="$(project_daily_capacity_units)"
   eff="${d}"
 
   if [ "${w_per_day}" -gt 0 ] && { [ "${eff}" -le 0 ] || [ "${w_per_day}" -lt "${eff}" ]; }; then
@@ -99,12 +101,64 @@ effective_daily_budget() {
   if [ "${m_per_day}" -gt 0 ] && { [ "${eff}" -le 0 ] || [ "${m_per_day}" -lt "${eff}" ]; }; then
     eff="${m_per_day}"
   fi
+  if [ "${project_cap}" -gt 0 ] && { [ "${eff}" -le 0 ] || [ "${project_cap}" -lt "${eff}" ]; }; then
+    eff="${project_cap}"
+  fi
 
   echo "${eff}"
 }
 
+project_daily_capacity_units() {
+  local line units
+  if [ ! -f "${PROJECT_UPDATE_FILE}" ]; then
+    echo 0
+    return 0
+  fi
+
+  line="$(awk '/^- Daily capacity: `/{print; exit}' "${PROJECT_UPDATE_FILE}")"
+  units="$(printf '%s' "${line}" | sed -n 's/^- Daily capacity: `\([0-9][0-9]*\) units\/day`$/\1/p')"
+  if [[ "${units}" =~ ^[0-9]+$ ]]; then
+    echo "${units}"
+    return 0
+  fi
+  echo 0
+}
+
 sum_units_for_day() {
-  awk -F '\t' -v d="${today}" '$2==d {sum += $7} END {print sum+0}' "${USAGE_FILE}"
+  local ledger_done_units task_done_units
+  ledger_done_units="$(awk -F '\t' -v d="${today}" '$2==d {sum += $7} END {print sum+0}' "${USAGE_FILE}")"
+  task_done_units="$(sum_done_task_units_for_day)"
+
+  if [ "${task_done_units}" -gt "${ledger_done_units}" ]; then
+    echo "${task_done_units}"
+    return 0
+  fi
+  echo "${ledger_done_units}"
+}
+
+sum_done_task_units_for_day() {
+  local tasks_dir total
+  tasks_dir="${REPO_ROOT}/docs/tasks/done"
+  total=0
+
+  if [ ! -d "${tasks_dir}" ]; then
+    echo 0
+    return 0
+  fi
+
+  for f in "${tasks_dir}"/T*.md; do
+    [ -f "${f}" ] || continue
+    local last_updated unit_estimate
+    last_updated="$(awk '/^- Last Updated: `/{gsub(/^- Last Updated: `|`$/,"",$0); print $0; exit}' "${f}")"
+    [ "${last_updated}" = "${today}" ] || continue
+
+    unit_estimate="$(awk '/^- Unit Estimate: `/{gsub(/^- Unit Estimate: `|`$/,"",$0); print $0; exit}' "${f}")"
+    if [[ "${unit_estimate}" =~ ^[0-9]+$ ]]; then
+      total=$(( total + unit_estimate ))
+    fi
+  done
+
+  echo "${total}"
 }
 
 sum_units_for_month() {
@@ -123,14 +177,15 @@ is_truthy() {
 }
 
 max_ratio_pct() {
-  local day_used week_used month_used day_ratio week_ratio month_ratio max_ratio
+  local day_used week_used month_used day_ratio week_ratio month_ratio max_ratio effective_day_budget
   day_used="$(sum_units_for_day)"
   week_used="$(sum_units_for_week)"
   month_used="$(sum_units_for_month)"
+  effective_day_budget="$(effective_daily_budget)"
 
   day_ratio=0
-  if [ "${DAILY_BUDGET_UNITS}" -gt 0 ]; then
-    day_ratio=$(( day_used * 100 / DAILY_BUDGET_UNITS ))
+  if [ "${effective_day_budget}" -gt 0 ]; then
+    day_ratio=$(( day_used * 100 / effective_day_budget ))
   fi
 
   week_ratio=0
@@ -264,12 +319,16 @@ record_usage() {
 
 show_status() {
   local day_used week_used month_used ratio day_rem week_rem month_rem eff_day eff_day_rem
+  local ledger_day_used task_done_units project_cap
+  ledger_day_used="$(awk -F '\t' -v d="${today}" '$2==d {sum += $7} END {print sum+0}' "${USAGE_FILE}")"
+  task_done_units="$(sum_done_task_units_for_day)"
+  project_cap="$(project_daily_capacity_units)"
   day_used="$(sum_units_for_day)"
   week_used="$(sum_units_for_week)"
   month_used="$(sum_units_for_month)"
   eff_day="$(effective_daily_budget)"
   ratio="$(max_ratio_pct)"
-  day_rem=$(( DAILY_BUDGET_UNITS - day_used ))
+  day_rem=$(( eff_day - day_used ))
   week_rem=$(( WEEKLY_BUDGET_UNITS - week_used ))
   month_rem=$(( MONTHLY_BUDGET_UNITS - month_used ))
   eff_day_rem=$(( eff_day - day_used ))
@@ -287,7 +346,11 @@ show_status() {
   else
     echo "- Limits: UNVERIFIED (spawns blocked)"
   fi
-  echo "- Daily units: ${day_used}/${DAILY_BUDGET_UNITS} (remaining ${day_rem})"
+  echo "- Effective daily units: ${day_used}/${eff_day} (remaining ${day_rem})"
+  echo "- Daily units sources: ledger=${ledger_day_used}, done_tasks_today=${task_done_units}"
+  if [ "${project_cap}" -gt 0 ]; then
+    echo "- Project daily capacity: ${project_cap} units/day (from docs/project-update.md)"
+  fi
   echo "- Daily budget source: ${DAILY_BUDGET_SOURCE}"
   echo "- Monthly units: ${month_used}/${MONTHLY_BUDGET_UNITS} (remaining ${month_rem})"
   echo "- Scaleback ratio: ${ratio}% (warn ${WARN_RATIO_PCT}%, strict ${STRICT_RATIO_PCT}%)"
