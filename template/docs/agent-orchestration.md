@@ -126,6 +126,7 @@ Reliability behavior:
 - Spawn writes deterministic run context + plan artifacts:
   - `.ops/agent-runs/<ticket>-<slug>.context.txt`
   - `.ops/agent-runs/<ticket>-<slug>.todo.md`
+  - `.ops/agent-runs/<ticket>-<slug>.tool-state.env`
 - When lead deems task complete (merged to `main`), remove run artifacts immediately:
   - `scripts/agents/cleanup-task-run-files.sh <ticket-slug-prefix>`
 
@@ -184,6 +185,8 @@ UI design quality gate:
   - `scripts/agents/export-agent-traces.sh`
 - Apply context-engineering checklist:
   - [`docs/context-engineering.md`](docs/context-engineering.md)
+- Apply tool-state machine checklist:
+  - [`docs/tool-state-machine.md`](docs/tool-state-machine.md)
 - Record results in decision note or linked PR summary.
 
 ## PR Rules

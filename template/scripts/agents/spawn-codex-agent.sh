@@ -24,6 +24,7 @@ LAST_FILE="${RUN_DIR}/${SAFE_NAME}.last.txt"
 PROMPT_FILE="${RUN_DIR}/${SAFE_NAME}.prompt.txt"
 CONTEXT_FILE="${RUN_DIR}/${SAFE_NAME}.context.txt"
 TODO_FILE="${RUN_DIR}/${SAFE_NAME}.todo.md"
+TOOL_STATE_FILE="${RUN_DIR}/${SAFE_NAME}.tool-state.env"
 MAX_CONCURRENT_AGENTS="${MAX_CONCURRENT_AGENTS:-3}"
 MODEL_SIMPLE="${AGENT_MODEL_SIMPLE:-gpt-5}"
 MODEL_STANDARD="${AGENT_MODEL_STANDARD:-gpt-5}"
@@ -36,6 +37,7 @@ AGENT_EXEC_MODE="${AGENT_EXEC_MODE:-guarded}"
 USAGE_GUARD="${REPO_ROOT}/scripts/agents/usage-guard.sh"
 DAEMON_LAUNCHER="${REPO_ROOT}/scripts/agents/launch-agent-daemon.py"
 NOTIFY_SCRIPT="${REPO_ROOT}/scripts/agents/notify-orchestrator.sh"
+TOOL_STATE_SCRIPT="${REPO_ROOT}/scripts/agents/tool-state-machine.sh"
 SKIP_WORKTREE_BOOTSTRAP="${SKIP_WORKTREE_BOOTSTRAP:-0}"
 
 hash_file() {
@@ -187,6 +189,12 @@ if [ ! -x "${NOTIFY_SCRIPT}" ]; then
   exit 1
 fi
 
+if [ ! -x "${TOOL_STATE_SCRIPT}" ]; then
+  echo "Tool state script missing or not executable: ${TOOL_STATE_SCRIPT}"
+  echo "Run: chmod +x scripts/agents/tool-state-machine.sh"
+  exit 1
+fi
+
 mkdir -p "${WORKTREE_ROOT}" "${RUN_DIR}"
 
 if ! [[ "${MAX_CONCURRENT_AGENTS}" =~ ^[0-9]+$ ]]; then
@@ -314,6 +322,11 @@ Hard requirements:
   2) allowed scope
   3) first verification command
 - If a retry occurs, use a different technical approach than previous attempts.
+- Follow tool state machine:
+  - Initial state is `plan`
+  - Allowed transitions: `plan -> implement -> verify -> finalize`
+  - Use `scripts/agents/tool-state-machine.sh` to check/advance state
+  - Do not use actions not allowed for current state
 
 Context snapshot starts below:
 
@@ -350,11 +363,15 @@ Implement only task ${TICKET_ID} (${SLUG}) per assigned task brief.
 - Read this file fully
 - Read task brief and required context
 - Recite objective/scope/first command before code changes
+- Confirm tool state:
+  - `scripts/agents/tool-state-machine.sh get ${SAFE_NAME}`
 
 ## Verification
 - Run required lint/tests in non-watch mode
 - Ensure no dev/watch processes remain running
 EOF
+
+"${TOOL_STATE_SCRIPT}" init "${SAFE_NAME}" >/dev/null
 
 {
   echo "${AGENT_PREFIX}"
@@ -398,3 +415,4 @@ echo "- Log: ${LOG_FILE}"
 echo "- Last message: ${LAST_FILE}"
 echo "- Context snapshot: ${CONTEXT_FILE}"
 echo "- Run plan: ${TODO_FILE}"
+echo "- Tool state: ${TOOL_STATE_FILE}"

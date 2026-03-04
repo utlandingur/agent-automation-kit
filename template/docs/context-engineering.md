@@ -38,12 +38,15 @@ Checks:
 - Retry instructions rotate between at least 3 strategy variants.
 
 ## 5) Tool Exposure / State-Machine Discipline
-Status: partial
+Status: implemented baseline
 
 Checks:
 - Hard-stop domains and escalation remain enforced by runtime rules.
+- Per-run tool-state file is initialized on spawn:
+  - `.ops/agent-runs/<run>.tool-state.env`
+- Deterministic state transitions are handled by:
+  - `scripts/agents/tool-state-machine.sh`
 - Tool contracts should stay schema-driven and compact.
-- When runtime supports direct tool masking/state gates, add deterministic tool-state transitions to spawn/daemon scripts.
 
 ## 6) Ongoing Evaluation
 Status: implemented baseline

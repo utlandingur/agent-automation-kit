@@ -63,6 +63,7 @@ agent_messages=0
 token_counts=0
 context_snapshots=0
 run_plans=0
+tool_state_files=0
 
 if [ -d "${RUN_DIR}" ]; then
   for log_file in "${RUN_DIR}"/*.log; do
@@ -72,6 +73,7 @@ if [ -d "${RUN_DIR}" ]; then
     last_file="${RUN_DIR}/${run_name}.last.txt"
     context_file="${RUN_DIR}/${run_name}.context.txt"
     todo_file="${RUN_DIR}/${run_name}.todo.md"
+    tool_state_file="${RUN_DIR}/${run_name}.tool-state.env"
 
     attempts=$((attempts + $(count_or_zero "\\[agent-supervisor\\].*launch attempt" "${log_file}")))
     stream_errors=$((stream_errors + $(count_or_zero '"type":"stream_error"' "${log_file}")))
@@ -82,6 +84,9 @@ if [ -d "${RUN_DIR}" ]; then
     fi
     if [ -s "${todo_file}" ]; then
       run_plans=$((run_plans + 1))
+    fi
+    if [ -s "${tool_state_file}" ]; then
+      tool_state_files=$((tool_state_files + 1))
     fi
 
     if [ -s "${last_file}" ] && ! rg -q "stopped unexpectedly before completion" "${last_file}" 2>/dev/null; then
@@ -112,7 +117,8 @@ cat > "${OUT_JSON}" <<EOF_JSON
   "agentMessages": ${agent_messages},
   "tokenCounts": ${token_counts},
   "contextSnapshots": ${context_snapshots},
-  "runPlans": ${run_plans}
+  "runPlans": ${run_plans},
+  "toolStateFiles": ${tool_state_files}
 }
 EOF_JSON
 
@@ -130,6 +136,7 @@ cat > "${OUT_MD}" <<EOF_MD
 - Token count events: ${token_counts}
 - Context snapshots present: ${context_snapshots}
 - Run plans present: ${run_plans}
+- Tool state files present: ${tool_state_files}
 EOF_MD
 
 if [ "${REQUIRE_RUNS}" -eq 1 ] && [ "${total_runs}" -eq 0 ]; then

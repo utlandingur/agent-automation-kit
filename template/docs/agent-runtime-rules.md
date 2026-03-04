@@ -23,6 +23,8 @@ Use this file as the default rule source during task execution.
   - `scripts/agents/run-eval-smoke.sh`
 - Follow context-engineering checklist:
   - [`docs/context-engineering.md`](docs/context-engineering.md)
+- Follow tool-state machine for phased action scope:
+  - [`docs/tool-state-machine.md`](docs/tool-state-machine.md)
 
 ## Architecture Selection
 - Default to single-agent execution for tasks that do not require explicit specialization or isolation.

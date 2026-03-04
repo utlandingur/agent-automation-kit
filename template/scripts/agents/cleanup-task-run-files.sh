@@ -22,7 +22,8 @@ for f in \
   "${RUN_DIR}/${RUN_NAME}.last.txt" \
   "${RUN_DIR}/${RUN_NAME}.prompt.txt" \
   "${RUN_DIR}/${RUN_NAME}.context.txt" \
-  "${RUN_DIR}/${RUN_NAME}.todo.md"; do
+  "${RUN_DIR}/${RUN_NAME}.todo.md" \
+  "${RUN_DIR}/${RUN_NAME}.tool-state.env"; do
   if [ -f "${f}" ]; then
     rm -f "${f}"
     removed=$((removed + 1))
