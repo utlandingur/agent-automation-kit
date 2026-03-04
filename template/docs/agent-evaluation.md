@@ -28,6 +28,9 @@ scripts/agents/export-agent-traces.sh --include-prompts
 - Eval report JSON: `.ops/evals/latest.json`
 - Eval report Markdown: `.ops/evals/latest.md`
 - Trace bundles: `.ops/evals/traces/trace-export-*.tar.gz`
+- Eval report includes context-engineering signals:
+  - context snapshot/plan/tool-state presence
+  - context-pack presence and truncation count
 
 ## Suggested CI Pattern
 - Run `scripts/agents/run-eval-smoke.sh` after integration tests.
