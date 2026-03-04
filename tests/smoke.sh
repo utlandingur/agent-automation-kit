@@ -16,6 +16,7 @@ for mode in install update; do
   [ -f "${tmp_target}/agents.md" ] || { echo "[FAIL] missing agents.md in ${tmp_target}"; exit 1; }
   [ -x "${tmp_target}/scripts/agents/spawn-codex-agent.sh" ] || { echo "[FAIL] missing executable spawn script in ${tmp_target}"; exit 1; }
   [ -x "${tmp_target}/scripts/agents/update-agent-automation.sh" ] || { echo "[FAIL] missing update helper script in ${tmp_target}"; exit 1; }
+  [ -x "${tmp_target}/scripts/agents/tool-state-machine.sh" ] || { echo "[FAIL] missing tool state script in ${tmp_target}"; exit 1; }
   [ -f "${tmp_target}/docs/agent-project-alignment.md" ] || { echo "[FAIL] missing alignment doc in ${tmp_target}"; exit 1; }
   [ -f "${tmp_target}/docs/agent-project-profile.md" ] || { echo "[FAIL] missing project profile template in ${tmp_target}"; exit 1; }
 
