@@ -123,6 +123,7 @@ AGENT_ALLOW_OVER_80_PCT=1 bash scripts/agents/spawn-codex-agent.sh T012 sample-t
 Reliability behavior:
 - Spawn uses detached supervisor launch to prevent silent process reaping.
 - If agent exits early/no completion message, supervisor retries automatically (bounded attempts) and writes failure note to `.last.txt` if unrecoverable.
+- If the same failure signature repeats across retries, supervisor triggers a guardrail and stops early.
 - Spawn writes deterministic run context + plan artifacts:
   - `.ops/agent-runs/<ticket>-<slug>.context.txt`
   - `.ops/agent-runs/<ticket>-<slug>.context.pack.txt`
