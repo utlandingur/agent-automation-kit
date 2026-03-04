@@ -25,6 +25,7 @@ PROMPT_FILE="${RUN_DIR}/${SAFE_NAME}.prompt.txt"
 CONTEXT_FILE="${RUN_DIR}/${SAFE_NAME}.context.txt"
 TODO_FILE="${RUN_DIR}/${SAFE_NAME}.todo.md"
 TOOL_STATE_FILE="${RUN_DIR}/${SAFE_NAME}.tool-state.env"
+CONTEXT_PACK_FILE="${RUN_DIR}/${SAFE_NAME}.context.pack.txt"
 MAX_CONCURRENT_AGENTS="${MAX_CONCURRENT_AGENTS:-3}"
 MODEL_SIMPLE="${AGENT_MODEL_SIMPLE:-gpt-5}"
 MODEL_STANDARD="${AGENT_MODEL_STANDARD:-gpt-5}"
@@ -38,6 +39,7 @@ USAGE_GUARD="${REPO_ROOT}/scripts/agents/usage-guard.sh"
 DAEMON_LAUNCHER="${REPO_ROOT}/scripts/agents/launch-agent-daemon.py"
 NOTIFY_SCRIPT="${REPO_ROOT}/scripts/agents/notify-orchestrator.sh"
 TOOL_STATE_SCRIPT="${REPO_ROOT}/scripts/agents/tool-state-machine.sh"
+CONTEXT_PACK_SCRIPT="${REPO_ROOT}/scripts/agents/context-pack.sh"
 SKIP_WORKTREE_BOOTSTRAP="${SKIP_WORKTREE_BOOTSTRAP:-0}"
 
 hash_file() {
@@ -192,6 +194,12 @@ fi
 if [ ! -x "${TOOL_STATE_SCRIPT}" ]; then
   echo "Tool state script missing or not executable: ${TOOL_STATE_SCRIPT}"
   echo "Run: chmod +x scripts/agents/tool-state-machine.sh"
+  exit 1
+fi
+
+if [ ! -x "${CONTEXT_PACK_SCRIPT}" ]; then
+  echo "Context pack script missing or not executable: ${CONTEXT_PACK_SCRIPT}"
+  echo "Run: chmod +x scripts/agents/context-pack.sh"
   exit 1
 fi
 
@@ -373,15 +381,17 @@ EOF
 
 "${TOOL_STATE_SCRIPT}" init "${SAFE_NAME}" >/dev/null
 
+"${CONTEXT_PACK_SCRIPT}" \
+  --run-name "${SAFE_NAME}" \
+  --output "${CONTEXT_PACK_FILE}" \
+  --context-file "${CONTEXT_FILE}" \
+  --todo-file "${TODO_FILE}" \
+  --task-file "${TASK_PATH}" >/dev/null
+
 {
   echo "${AGENT_PREFIX}"
-  cat "${CONTEXT_FILE}"
+  cat "${CONTEXT_PACK_FILE}"
   echo
-  cat "${TODO_FILE}"
-  echo
-  echo "Task brief starts below:"
-  echo
-  cat "${TASK_PATH}"
 } > "${PROMPT_FILE}"
 
 # Reset stale run outputs for this ticket so health checks reflect current spawn only.
@@ -415,4 +425,5 @@ echo "- Log: ${LOG_FILE}"
 echo "- Last message: ${LAST_FILE}"
 echo "- Context snapshot: ${CONTEXT_FILE}"
 echo "- Run plan: ${TODO_FILE}"
+echo "- Packed context: ${CONTEXT_PACK_FILE}"
 echo "- Tool state: ${TOOL_STATE_FILE}"

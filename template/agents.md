@@ -53,6 +53,8 @@ Before first use, run:
   - [`docs/agent-evaluation.md`](docs/agent-evaluation.md)
 - Use context-engineering checklist:
   - [`docs/context-engineering.md`](docs/context-engineering.md)
+- Use context compaction guide:
+  - [`docs/context-compaction.md`](docs/context-compaction.md)
 - Use tool state machine guide:
   - [`docs/tool-state-machine.md`](docs/tool-state-machine.md)
 

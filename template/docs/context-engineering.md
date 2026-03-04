@@ -3,16 +3,16 @@
 Reference: Manus context-engineering lessons for agent systems.
 
 ## 1) Stable Prefix + Deterministic Context
-Status: partial -> implemented baseline
+Status: implemented baseline
 
 Checks:
 - Spawn writes deterministic run context snapshot:
   - `.ops/agent-runs/<run>.context.txt`
+- Spawn generates deterministic packed context artifact:
+  - `.ops/agent-runs/<run>.context.pack.txt`
 - Prompt prefix order is stable:
   1. hard requirements
-  2. context snapshot
-  3. run plan
-  4. task brief
+  2. packed context sections (snapshot, plan, brief)
 
 ## 2) Externalized Working Memory
 Status: implemented baseline

@@ -17,6 +17,7 @@ required=(
   "run-eval-smoke.sh"
   "export-agent-traces.sh"
   "tool-state-machine.sh"
+  "context-pack.sh"
 )
 
 for file in "${required[@]}"; do

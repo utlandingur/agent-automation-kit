@@ -64,6 +64,8 @@ token_counts=0
 context_snapshots=0
 run_plans=0
 tool_state_files=0
+context_pack_files=0
+context_pack_truncated_runs=0
 
 if [ -d "${RUN_DIR}" ]; then
   for log_file in "${RUN_DIR}"/*.log; do
@@ -74,6 +76,7 @@ if [ -d "${RUN_DIR}" ]; then
     context_file="${RUN_DIR}/${run_name}.context.txt"
     todo_file="${RUN_DIR}/${run_name}.todo.md"
     tool_state_file="${RUN_DIR}/${run_name}.tool-state.env"
+    context_pack_file="${RUN_DIR}/${run_name}.context.pack.txt"
 
     attempts=$((attempts + $(count_or_zero "\\[agent-supervisor\\].*launch attempt" "${log_file}")))
     stream_errors=$((stream_errors + $(count_or_zero '"type":"stream_error"' "${log_file}")))
@@ -87,6 +90,12 @@ if [ -d "${RUN_DIR}" ]; then
     fi
     if [ -s "${tool_state_file}" ]; then
       tool_state_files=$((tool_state_files + 1))
+    fi
+    if [ -s "${context_pack_file}" ]; then
+      context_pack_files=$((context_pack_files + 1))
+      if rg -q "section\\..*\\.truncated=yes" "${context_pack_file}" 2>/dev/null; then
+        context_pack_truncated_runs=$((context_pack_truncated_runs + 1))
+      fi
     fi
 
     if [ -s "${last_file}" ] && ! rg -q "stopped unexpectedly before completion" "${last_file}" 2>/dev/null; then
@@ -118,7 +127,9 @@ cat > "${OUT_JSON}" <<EOF_JSON
   "tokenCounts": ${token_counts},
   "contextSnapshots": ${context_snapshots},
   "runPlans": ${run_plans},
-  "toolStateFiles": ${tool_state_files}
+  "toolStateFiles": ${tool_state_files},
+  "contextPackFiles": ${context_pack_files},
+  "contextPackTruncatedRuns": ${context_pack_truncated_runs}
 }
 EOF_JSON
 
@@ -137,6 +148,8 @@ cat > "${OUT_MD}" <<EOF_MD
 - Context snapshots present: ${context_snapshots}
 - Run plans present: ${run_plans}
 - Tool state files present: ${tool_state_files}
+- Context pack files present: ${context_pack_files}
+- Context pack truncated runs: ${context_pack_truncated_runs}
 EOF_MD
 
 if [ "${REQUIRE_RUNS}" -eq 1 ] && [ "${total_runs}" -eq 0 ]; then

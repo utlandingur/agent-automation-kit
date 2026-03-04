@@ -22,6 +22,7 @@ for f in \
   "${RUN_DIR}/${RUN_NAME}.last.txt" \
   "${RUN_DIR}/${RUN_NAME}.prompt.txt" \
   "${RUN_DIR}/${RUN_NAME}.context.txt" \
+  "${RUN_DIR}/${RUN_NAME}.context.pack.txt" \
   "${RUN_DIR}/${RUN_NAME}.todo.md" \
   "${RUN_DIR}/${RUN_NAME}.tool-state.env"; do
   if [ -f "${f}" ]; then

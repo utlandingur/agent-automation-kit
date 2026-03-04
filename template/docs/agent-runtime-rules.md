@@ -23,6 +23,8 @@ Use this file as the default rule source during task execution.
   - `scripts/agents/run-eval-smoke.sh`
 - Follow context-engineering checklist:
   - [`docs/context-engineering.md`](docs/context-engineering.md)
+- Pack runtime context deterministically before execution:
+  - [`docs/context-compaction.md`](docs/context-compaction.md)
 - Follow tool-state machine for phased action scope:
   - [`docs/tool-state-machine.md`](docs/tool-state-machine.md)
 

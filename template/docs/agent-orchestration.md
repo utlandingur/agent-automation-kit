@@ -125,6 +125,7 @@ Reliability behavior:
 - If agent exits early/no completion message, supervisor retries automatically (bounded attempts) and writes failure note to `.last.txt` if unrecoverable.
 - Spawn writes deterministic run context + plan artifacts:
   - `.ops/agent-runs/<ticket>-<slug>.context.txt`
+  - `.ops/agent-runs/<ticket>-<slug>.context.pack.txt`
   - `.ops/agent-runs/<ticket>-<slug>.todo.md`
   - `.ops/agent-runs/<ticket>-<slug>.tool-state.env`
 - When lead deems task complete (merged to `main`), remove run artifacts immediately:
@@ -185,6 +186,8 @@ UI design quality gate:
   - `scripts/agents/export-agent-traces.sh`
 - Apply context-engineering checklist:
   - [`docs/context-engineering.md`](docs/context-engineering.md)
+- Apply context compaction policy:
+  - [`docs/context-compaction.md`](docs/context-compaction.md)
 - Apply tool-state machine checklist:
   - [`docs/tool-state-machine.md`](docs/tool-state-machine.md)
 - Record results in decision note or linked PR summary.
