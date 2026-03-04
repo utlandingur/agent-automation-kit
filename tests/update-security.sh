@@ -8,6 +8,16 @@ tmp_origin_dir="$(mktemp -d /tmp/agent-automation-update-security-origin.XXXXXX)
 tmp_source="$(mktemp -d /tmp/agent-automation-update-security-source.XXXXXX)"
 trap 'rm -rf "${tmp_target}" "${tmp_origin_dir}" "${tmp_source}"' EXIT
 
+contains_text() {
+  local needle="$1"
+  local haystack="$2"
+  if command -v rg >/dev/null 2>&1; then
+    printf '%s' "${haystack}" | rg -q "${needle}"
+    return
+  fi
+  printf '%s' "${haystack}" | grep -Eq "${needle}"
+}
+
 git clone --bare "${ROOT}" "${tmp_origin_dir}/kit.git" >/dev/null 2>&1
 git clone "${tmp_origin_dir}/kit.git" "${tmp_source}" >/dev/null 2>&1
 
@@ -24,7 +34,7 @@ set -e
   echo "[FAIL] expected missing-ref invocation to fail"
   exit 1
 }
-printf '%s' "${missing_ref_out}" | rg -q "Missing required source/ref" || {
+contains_text "Missing required source/ref" "${missing_ref_out}" || {
   echo "[FAIL] expected missing-ref failure message"
   exit 1
 }
@@ -37,7 +47,7 @@ set -e
   echo "[FAIL] expected unpinned branch ref to fail by default"
   exit 1
 }
-printf '%s' "${unpinned_out}" | rg -q "not an immutable commit SHA or tag" || {
+contains_text "not an immutable commit SHA or tag" "${unpinned_out}" || {
   echo "[FAIL] expected unpinned-ref failure message"
   exit 1
 }

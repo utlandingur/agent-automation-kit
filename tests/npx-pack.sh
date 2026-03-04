@@ -6,6 +6,16 @@ ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 command -v npm >/dev/null 2>&1 || { echo "[FAIL] npm is required"; exit 1; }
 command -v npx >/dev/null 2>&1 || { echo "[FAIL] npx is required"; exit 1; }
 
+contains_text() {
+  local needle="$1"
+  local haystack="$2"
+  if command -v rg >/dev/null 2>&1; then
+    printf '%s' "${haystack}" | rg -q "${needle}"
+    return
+  fi
+  printf '%s' "${haystack}" | grep -Eq "${needle}"
+}
+
 pushd "${ROOT}" >/dev/null
 pkg_tgz="$(npm pack --silent | tail -n1)"
 popd >/dev/null
@@ -30,11 +40,11 @@ set -e
   echo "[FAIL] expected update exit code 3 on conflict, got ${update_rc}"
   exit 1
 }
-printf '%s' "${update_output}" | rg -q "\[CONFLICT\] agents.md \(locally modified\)" || {
+contains_text "\\[CONFLICT\\] agents.md \\(locally modified\\)" "${update_output}" || {
   echo "[FAIL] expected conflict preservation for locally edited agents.md"
   exit 1
 }
-tail -n1 "${tmp_target}/agents.md" | rg -q "# local edit" || {
+tail -n1 "${tmp_target}/agents.md" | grep -q "# local edit" || {
   echo "[FAIL] local modifications were overwritten unexpectedly"
   exit 1
 }
