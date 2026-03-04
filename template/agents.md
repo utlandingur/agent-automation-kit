@@ -51,6 +51,8 @@ Before first use, run:
 - Log concise metadata only.
 - Use eval/trace ops guidance:
   - [`docs/agent-evaluation.md`](docs/agent-evaluation.md)
+- Use context-engineering checklist:
+  - [`docs/context-engineering.md`](docs/context-engineering.md)
 
 ## Validation Required
 - `<LINT_COMMAND>`

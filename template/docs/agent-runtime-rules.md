@@ -21,6 +21,8 @@ Use this file as the default rule source during task execution.
 - If orchestrator is `IDLE` and no hard-stop/user-decision block exists, start next eligible task immediately.
 - For orchestration/script changes, generate an eval smoke report:
   - `scripts/agents/run-eval-smoke.sh`
+- Follow context-engineering checklist:
+  - [`docs/context-engineering.md`](docs/context-engineering.md)
 
 ## Architecture Selection
 - Default to single-agent execution for tasks that do not require explicit specialization or isolation.
@@ -80,6 +82,8 @@ Use this file as the default rule source during task execution.
   1. this file
   2. assigned task brief
   3. files listed in task brief “Required Context”
+- If present for the run, read and recite run plan:
+  - `.ops/agent-runs/<run>.todo.md`
 - You may read task-scoped implementation files listed in the brief (`Files/Areas`, `In Scope`) and their direct dependencies/imports needed to complete the task.
 - Do not read broader docs unless task brief explicitly requires them.
 - For UI-impacting tasks, task brief must include:

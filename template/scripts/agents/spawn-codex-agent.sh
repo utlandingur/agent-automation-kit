@@ -22,6 +22,8 @@ LOG_FILE="${RUN_DIR}/${SAFE_NAME}.log"
 PID_FILE="${RUN_DIR}/${SAFE_NAME}.pid"
 LAST_FILE="${RUN_DIR}/${SAFE_NAME}.last.txt"
 PROMPT_FILE="${RUN_DIR}/${SAFE_NAME}.prompt.txt"
+CONTEXT_FILE="${RUN_DIR}/${SAFE_NAME}.context.txt"
+TODO_FILE="${RUN_DIR}/${SAFE_NAME}.todo.md"
 MAX_CONCURRENT_AGENTS="${MAX_CONCURRENT_AGENTS:-3}"
 MODEL_SIMPLE="${AGENT_MODEL_SIMPLE:-gpt-5}"
 MODEL_STANDARD="${AGENT_MODEL_STANDARD:-gpt-5}"
@@ -35,6 +37,15 @@ USAGE_GUARD="${REPO_ROOT}/scripts/agents/usage-guard.sh"
 DAEMON_LAUNCHER="${REPO_ROOT}/scripts/agents/launch-agent-daemon.py"
 NOTIFY_SCRIPT="${REPO_ROOT}/scripts/agents/notify-orchestrator.sh"
 SKIP_WORKTREE_BOOTSTRAP="${SKIP_WORKTREE_BOOTSTRAP:-0}"
+
+hash_file() {
+  local file="$1"
+  if command -v shasum >/dev/null 2>&1; then
+    shasum -a 256 "${file}" | awk '{print $1}'
+    return 0
+  fi
+  sha256sum "${file}" | awk '{print $1}'
+}
 
 if [ ! -f "${REPO_ROOT}/${TASK_BRIEF}" ] && [ ! -f "${TASK_BRIEF}" ]; then
   echo "Task brief not found: ${TASK_BRIEF}"
@@ -298,14 +309,61 @@ Hard requirements:
 - Never leave watch/test/dev processes running; tests must run in non-watch mode.
 - Keep status/final responses terse and task-relevant only.
 - Commit with a clean, scoped message when done.
+- Read the context snapshot and plan file below, then start by reciting:
+  1) objective
+  2) allowed scope
+  3) first verification command
+- If a retry occurs, use a different technical approach than previous attempts.
 
-Task brief starts below:
+Context snapshot starts below:
 
 PROMPT
 )
 
+TASK_HASH="$(hash_file "${TASK_PATH}")"
+cat > "${CONTEXT_FILE}" <<EOF
+run_name=${SAFE_NAME}
+ticket_id=${TICKET_ID}
+slug=${SLUG}
+model_tier=${EFFECTIVE_TIER}
+model_name=${MODEL_NAME}
+reasoning_effort=${REASONING_EFFORT}
+exec_mode=${AGENT_EXEC_MODE}
+task_brief_path=${TASK_PATH}
+task_brief_sha256=${TASK_HASH}
+runtime_rules=docs/agent-runtime-rules.md
+EOF
+
+cat > "${TODO_FILE}" <<EOF
+# Run Plan (${SAFE_NAME})
+
+## Objective
+Implement only task ${TICKET_ID} (${SLUG}) per assigned task brief.
+
+## Scope Guard
+- Read only Required Context + task-scoped files/imports.
+- Do not widen scope without lead approval.
+- Do not perform hard-stop domain changes without escalation.
+
+## Start Checklist
+- Read docs/agent-runtime-rules.md
+- Read this file fully
+- Read task brief and required context
+- Recite objective/scope/first command before code changes
+
+## Verification
+- Run required lint/tests in non-watch mode
+- Ensure no dev/watch processes remain running
+EOF
+
 {
   echo "${AGENT_PREFIX}"
+  cat "${CONTEXT_FILE}"
+  echo
+  cat "${TODO_FILE}"
+  echo
+  echo "Task brief starts below:"
+  echo
   cat "${TASK_PATH}"
 } > "${PROMPT_FILE}"
 
@@ -338,3 +396,5 @@ echo "- Worktree: ${WORKTREE_DIR}"
 echo "- PID: ${PID}"
 echo "- Log: ${LOG_FILE}"
 echo "- Last message: ${LAST_FILE}"
+echo "- Context snapshot: ${CONTEXT_FILE}"
+echo "- Run plan: ${TODO_FILE}"

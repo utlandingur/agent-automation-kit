@@ -61,6 +61,8 @@ stream_errors=0
 attempts=0
 agent_messages=0
 token_counts=0
+context_snapshots=0
+run_plans=0
 
 if [ -d "${RUN_DIR}" ]; then
   for log_file in "${RUN_DIR}"/*.log; do
@@ -68,11 +70,19 @@ if [ -d "${RUN_DIR}" ]; then
     total_runs=$((total_runs + 1))
     run_name="$(basename "${log_file}" .log)"
     last_file="${RUN_DIR}/${run_name}.last.txt"
+    context_file="${RUN_DIR}/${run_name}.context.txt"
+    todo_file="${RUN_DIR}/${run_name}.todo.md"
 
     attempts=$((attempts + $(count_or_zero "\\[agent-supervisor\\].*launch attempt" "${log_file}")))
     stream_errors=$((stream_errors + $(count_or_zero '"type":"stream_error"' "${log_file}")))
     agent_messages=$((agent_messages + $(count_or_zero '"type":"agent_message"' "${log_file}")))
     token_counts=$((token_counts + $(count_or_zero '"type":"token_count"' "${log_file}")))
+    if [ -s "${context_file}" ]; then
+      context_snapshots=$((context_snapshots + 1))
+    fi
+    if [ -s "${todo_file}" ]; then
+      run_plans=$((run_plans + 1))
+    fi
 
     if [ -s "${last_file}" ] && ! rg -q "stopped unexpectedly before completion" "${last_file}" 2>/dev/null; then
       completed_runs=$((completed_runs + 1))
@@ -100,7 +110,9 @@ cat > "${OUT_JSON}" <<EOF_JSON
   "attempts": ${attempts},
   "streamErrors": ${stream_errors},
   "agentMessages": ${agent_messages},
-  "tokenCounts": ${token_counts}
+  "tokenCounts": ${token_counts},
+  "contextSnapshots": ${context_snapshots},
+  "runPlans": ${run_plans}
 }
 EOF_JSON
 
@@ -116,6 +128,8 @@ cat > "${OUT_MD}" <<EOF_MD
 - Stream errors: ${stream_errors}
 - Agent messages: ${agent_messages}
 - Token count events: ${token_counts}
+- Context snapshots present: ${context_snapshots}
+- Run plans present: ${run_plans}
 EOF_MD
 
 if [ "${REQUIRE_RUNS}" -eq 1 ] && [ "${total_runs}" -eq 0 ]; then
