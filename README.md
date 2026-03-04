@@ -73,6 +73,35 @@ scripts/agents/ship-pr.sh --help
 scripts/agents/cleanup-task-run-files.sh <TICKET_ID>-<slug>
 ```
 
+## Humans + Agents in the same repo
+Yes, this kit is designed for mixed teams where humans and agents both ship code.
+
+Recommended collaboration model:
+- humans own product direction, task quality, and final merge decisions
+- agents own scoped execution per task brief
+- one task = one branch = one PR (no shared feature branch editing)
+
+How to stay in sync:
+1. Keep task briefs current before and during execution.
+2. Treat `scripts/agents/orchestrator-status.sh --brief` as source-of-truth for “is work actively running”.
+3. Use PRs as handoff boundaries (human review and approval between major direction changes).
+4. If a human changes the same area while an agent is running:
+   - stop spawning dependent tasks
+   - finish or stop the active task branch
+   - rebase/sync from latest `main`
+   - relaunch from updated task brief if needed
+5. After each merge wave, run:
+```bash
+scripts/agents/orchestrator-context-compress.sh
+scripts/agents/run-eval-smoke.sh
+```
+
+Practical handoff rhythm:
+- start of day: lint task briefs + confirm queue
+- during day: monitor active runs every 5-10 minutes
+- before merge: human reviews PR, checks tests/risks, approves
+- after merge: clean run artifacts and update next READY task
+
 ## Safe updates across repos
 Run this in each consumer repo to pull managed automation while preserving local edits.
 Use an immutable ref (commit SHA preferred, tags supported):
