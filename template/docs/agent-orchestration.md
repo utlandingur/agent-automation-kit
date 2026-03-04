@@ -89,6 +89,9 @@ Template:
   - `simple` -> `AGENT_MODEL_SIMPLE` (default `gpt-5`)
   - `standard` -> `AGENT_MODEL_STANDARD` (default `gpt-5`)
   - `complex` -> `AGENT_MODEL_COMPLEX` (default `gpt-5`)
+- Execution mode defaults to `guarded` (no `--full-auto`).
+  - Opt in to full-auto only when explicitly approved:
+    - `AGENT_EXEC_MODE=full_auto bash scripts/agents/spawn-codex-agent.sh ...`
 - Usage guardrails:
   - monitor: `scripts/agents/usage-guard.sh status`
   - default daily budget is derived as `monthly_budget / 30` unless `AGENT_DAILY_BUDGET_UNITS` is explicitly set
