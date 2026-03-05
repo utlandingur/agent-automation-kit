@@ -326,14 +326,14 @@ Hard requirements:
 - Keep status/final responses terse and task-relevant only.
 - Commit with a clean, scoped message when done.
 - Read the context snapshot and plan file below, then start by reciting:
-  1) objective
-  2) allowed scope
-  3) first verification command
+  - objective
+  - allowed scope
+  - first verification command
 - If a retry occurs, use a different technical approach than previous attempts.
 - Follow tool state machine:
-  - Initial state is `plan`
-  - Allowed transitions: `plan -> implement -> verify -> finalize`
-  - Use `scripts/agents/tool-state-machine.sh` to check/advance state
+  - Initial state is plan
+  - Allowed transitions: plan -> implement -> verify -> finalize
+  - Use scripts/agents/tool-state-machine.sh to check/advance state
   - Do not use actions not allowed for current state
 
 Context snapshot starts below:
