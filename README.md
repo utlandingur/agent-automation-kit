@@ -39,7 +39,7 @@ First run (minimal):
 
 ```bash
 scripts/agents/lint-task-briefs.sh
-bash scripts/agents/spawn-codex-agent.sh <TICKET_ID> <slug> docs/tasks/<file>.md
+bash scripts/agents/spawn-codex-agent.sh T001 example-task docs/tasks/todo/T001-example-task.md
 scripts/agents/orchestrator-status.sh --brief
 scripts/agents/check-agent-health.sh <TICKET_ID>-<slug>
 ```
@@ -189,6 +189,7 @@ Defaults:
 - override: `AGENT_WORKTREE_ROOT=/absolute/path`
 
 `spawn-codex-agent.sh` uses this helper automatically.
+It delegates branch/worktree creation to `worktree-task.sh create ...`.
 
 ## Humans + agents in the same repo
 Recommended model:
