@@ -2,13 +2,35 @@
 
 Portable installer for agent orchestration scripts, docs, and policy baseline.
 
-## What this is for
-Use this kit when you want repeatable, policy-guarded multi-agent development in a normal Git repo.
+## What this is
+This is a reusable automation layer you install in a repo so AI-assisted coding follows a consistent, script-based workflow.
 
-It installs:
-- runtime scripts for spawning/monitoring/shipping agent work
-- baseline governance and orchestration docs
-- templates for task briefs, PR descriptions, and review workflows
+It gives your project:
+- checked-in scripts for task execution, monitoring, and PR shipping
+- repo docs/templates that define how tasks are written and reviewed
+- a safe update path so multiple repos can stay aligned over time
+
+## Problem it solves (vs normal vibe coding)
+Normal vibe coding is fast, but usually ad-hoc:
+- task setup changes every time
+- process lives in chat history instead of the repo
+- hard to see what an agent ran and why
+- parallel agent work can collide
+- improvements are hard to roll out consistently across repos
+
+This kit solves that by making the workflow reproducible:
+- one task -> one branch/worktree -> one PR
+- run artifacts in `.ops/agent-runs/*` for visibility and debugging
+- health/lint/eval checks before shipping
+- pinned, drift-aware updates for managed automation files
+
+## What gets installed
+- `agents.md`
+- `scripts/agents/*`
+- core docs for orchestration/rules/templates
+- alignment docs:
+  - `docs/agent-project-alignment.md`
+  - `docs/agent-project-profile.md`
 
 ## Local usage
 ```bash
@@ -24,12 +46,12 @@ scripts/agents/init-project-context.sh
 Use `--force` to overwrite existing files.
 Use `--dry-run` to preview changes and `--check` for CI drift detection.
 
-## How it works (human view)
-1. Define a task brief in your consumer repo (`docs/tasks/...`).
-2. Spawn a task agent on an isolated worktree/branch.
-3. Agent runtime enforces policy rails (scope, hard-stop domains, cost/usage checks).
-4. Monitor health/status from `.ops/agent-runs/*` and orchestration helpers.
-5. Ship with sequential PR automation (`ship-pr.sh`), then cleanup run artifacts.
+## How it works in practice
+1. Write the task in `docs/tasks/...` (like a mini ticket + acceptance criteria).
+2. Spawn an agent on an isolated branch/worktree.
+3. Let the runtime enforce guardrails while it executes.
+4. Inspect status/log artifacts as it runs.
+5. Ship through PR flow, then cleanup run files.
 
 Common run artifacts:
 - `.ops/agent-runs/<ticket>-<slug>.log` - full execution log
@@ -72,6 +94,22 @@ scripts/agents/ship-pr.sh --help
 ```bash
 scripts/agents/cleanup-task-run-files.sh <TICKET_ID>-<slug>
 ```
+
+## Worktree automation
+The runtime includes a dedicated helper for repeatable branch/worktree management:
+
+```bash
+scripts/agents/worktree-task.sh create <TICKET_ID> <slug>
+scripts/agents/worktree-task.sh list
+scripts/agents/worktree-task.sh remove <TICKET_ID> <slug> --delete-branch
+```
+
+Defaults:
+- branch format: `codex/<TICKET_ID>-<slug>`
+- worktree location: `<repo-parent>/agent-worktrees`
+- override location with `AGENT_WORKTREE_ROOT=/absolute/path`
+
+`spawn-codex-agent.sh` uses this helper automatically, so task spawns stay aligned with the same worktree conventions.
 
 ## Humans + Agents in the same repo
 Yes, this kit is designed for mixed teams where humans and agents both ship code.
@@ -149,11 +187,3 @@ Primary references installed in consumer repos:
 - `docs/context-compaction.md`
 - `docs/tool-state-machine.md`
 - `docs/agent-evaluation.md`
-
-## What gets installed
-- `agents.md`
-- `scripts/agents/*`
-- core docs for orchestration/rules/templates
-- alignment docs:
-  - `docs/agent-project-alignment.md`
-  - `docs/agent-project-profile.md`
