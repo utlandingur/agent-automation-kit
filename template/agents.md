@@ -66,6 +66,7 @@ Before first use, run:
 ## Task/Branch Rules
 - One task = one branch = one small PR.
 - New task must start from latest `main`.
+- Use `scripts/agents/worktree-task.sh` for consistent branch/worktree setup and cleanup.
 - Do not start dependent work if upstream unfinished task touches same feature/code area.
 - Dependent tasks stay blocked until upstream merge to `main`.
 - Use cheapest acceptable model for simple tasks; escalate model tier only when needed.

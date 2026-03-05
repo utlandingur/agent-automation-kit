@@ -40,6 +40,7 @@ DAEMON_LAUNCHER="${REPO_ROOT}/scripts/agents/launch-agent-daemon.py"
 NOTIFY_SCRIPT="${REPO_ROOT}/scripts/agents/notify-orchestrator.sh"
 TOOL_STATE_SCRIPT="${REPO_ROOT}/scripts/agents/tool-state-machine.sh"
 CONTEXT_PACK_SCRIPT="${REPO_ROOT}/scripts/agents/context-pack.sh"
+WORKTREE_SCRIPT="${REPO_ROOT}/scripts/agents/worktree-task.sh"
 SKIP_WORKTREE_BOOTSTRAP="${SKIP_WORKTREE_BOOTSTRAP:-0}"
 
 hash_file() {
@@ -203,6 +204,12 @@ if [ ! -x "${CONTEXT_PACK_SCRIPT}" ]; then
   exit 1
 fi
 
+if [ ! -x "${WORKTREE_SCRIPT}" ]; then
+  echo "Worktree helper missing or not executable: ${WORKTREE_SCRIPT}"
+  echo "Run: chmod +x scripts/agents/worktree-task.sh"
+  exit 1
+fi
+
 mkdir -p "${WORKTREE_ROOT}" "${RUN_DIR}"
 
 if ! [[ "${MAX_CONCURRENT_AGENTS}" =~ ^[0-9]+$ ]]; then
@@ -265,20 +272,7 @@ if ! can_spawn_msg="$("${USAGE_GUARD}" can-spawn "${EFFECTIVE_TIER}")"; then
   exit 1
 fi
 
-# Keep branch roots consistent.
-git fetch origin main >/dev/null 2>&1 || true
-
-if git show-ref --verify --quiet "refs/heads/${BRANCH}"; then
-  echo "Branch already exists: ${BRANCH}"
-  exit 1
-fi
-
-if [ -d "${WORKTREE_DIR}" ]; then
-  echo "Worktree already exists: ${WORKTREE_DIR}"
-  exit 1
-fi
-
-git worktree add -b "${BRANCH}" "${WORKTREE_DIR}" main
+bash "${WORKTREE_SCRIPT}" create "${TICKET_ID}" "${SLUG}" main >/dev/null
 
 if [ "${SKIP_WORKTREE_BOOTSTRAP}" != "1" ]; then
   if ! command -v corepack >/dev/null 2>&1; then

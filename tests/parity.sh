@@ -18,6 +18,7 @@ required=(
   "export-agent-traces.sh"
   "tool-state-machine.sh"
   "context-pack.sh"
+  "worktree-task.sh"
 )
 
 for file in "${required[@]}"; do
