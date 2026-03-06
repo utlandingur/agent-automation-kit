@@ -26,7 +26,7 @@ pkg_tgz="$(npm pack --silent | tail -n1)"
 npx --yes --package "./${pkg_tgz}" agent-automation-install /absolute/path/to/target-repo
 ```
 
-Initialize project-specific context in the target repo:
+Initialize project-specific context in the target repo (one-time):
 
 ```bash
 cd /absolute/path/to/target-repo
@@ -34,6 +34,7 @@ scripts/agents/init-project-context.sh
 ```
 
 `init-project-context.sh` is interactive and requires a TTY.
+Successful initialization writes `.agent-automation/context-initialized`.
 
 First run (minimal):
 

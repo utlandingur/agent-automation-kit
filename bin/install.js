@@ -203,6 +203,46 @@ function setExecutableBits(targetDir) {
   }
 }
 
+function getContextInitMarkerPath(targetDir) {
+  return path.join(targetDir, '.agent-automation', 'context-initialized');
+}
+
+function writeContextInitMarker(targetDir) {
+  const markerPath = getContextInitMarkerPath(targetDir);
+  ensureDir(path.dirname(markerPath));
+  fs.writeFileSync(markerPath, `initializedAt=${new Date().toISOString()}\n`, 'utf8');
+}
+
+function hasProjectContextPlaceholders(targetDir) {
+  const agentsPath = path.join(targetDir, 'agents.md');
+  const profilePath = path.join(targetDir, 'docs', 'agent-project-profile.md');
+
+  if (!fs.existsSync(agentsPath) || !fs.existsSync(profilePath)) {
+    return true;
+  }
+
+  const agents = fs.readFileSync(agentsPath, 'utf8');
+  const profile = fs.readFileSync(profilePath, 'utf8');
+
+  // Default templates before initialization include explicit placeholders/blanks.
+  if (agents.includes('<LINT_COMMAND>') || agents.includes('<UNIT_TEST_COMMAND>')) {
+    return true;
+  }
+  if (profile.includes('- Input:\n') || profile.includes('- lint:\n') || profile.includes('- unit tests:\n')) {
+    return true;
+  }
+
+  return false;
+}
+
+function isProjectContextInitialized(targetDir) {
+  if (fs.existsSync(getContextInitMarkerPath(targetDir))) {
+    return true;
+  }
+
+  return !hasProjectContextPlaceholders(targetDir);
+}
+
 function main() {
   const invokedAs = path.basename(process.argv[1] || '');
   const { targetDir, force, update, dryRun, check } = parseArgs(process.argv.slice(2), invokedAs);
@@ -257,10 +297,21 @@ function main() {
     process.exit(3);
   }
 
+  const contextInitialized = isProjectContextInitialized(targetDir);
+  if (!dryRun && contextInitialized && !fs.existsSync(getContextInitMarkerPath(targetDir))) {
+    writeContextInitMarker(targetDir);
+  }
+
   console.log('Next steps:');
-  console.log('1) Initialize project context: scripts/agents/init-project-context.sh');
-  console.log('2) Review docs/agent-project-alignment.md and complete any remaining project-specific fields.');
-  console.log('3) Validate scripts with: bash -n scripts/agents/*.sh && python3 -m py_compile scripts/agents/launch-agent-daemon.py');
+  if (!contextInitialized) {
+    console.log('1) Initialize project context (one-time): scripts/agents/init-project-context.sh');
+    console.log('2) Review docs/agent-project-alignment.md and complete any remaining project-specific fields.');
+    console.log('3) Validate scripts with: bash -n scripts/agents/*.sh && python3 -m py_compile scripts/agents/launch-agent-daemon.py');
+  } else {
+    console.log('1) Project context already initialized; skip init-project-context.sh.');
+    console.log('2) Review docs/agent-project-alignment.md and complete any remaining project-specific fields.');
+    console.log('3) Validate scripts with: bash -n scripts/agents/*.sh && python3 -m py_compile scripts/agents/launch-agent-daemon.py');
+  }
 }
 
 main();

@@ -6,6 +6,8 @@ PROFILE="${ROOT}/docs/agent-project-profile.md"
 AGENTS="${ROOT}/agents.md"
 README="${ROOT}/README.md"
 PACKAGE_JSON="${ROOT}/package.json"
+MARKER_DIR="${ROOT}/.agent-automation"
+MARKER_FILE="${MARKER_DIR}/context-initialized"
 
 if [[ ! -f "${PROFILE}" || ! -f "${AGENTS}" ]]; then
   echo "[FAIL] Missing required files. Run installer first." >&2
@@ -183,9 +185,16 @@ cat > "${PROFILE}" <<EOF
 - 
 EOF
 
+mkdir -p "${MARKER_DIR}"
+cat > "${MARKER_FILE}" <<EOF
+initialized_at=$(date -u +%Y-%m-%dT%H:%M:%SZ)
+method=init-project-context.sh
+EOF
+
 echo "[PASS] Project context initialized with explicit confirmations."
 echo "Updated:"
 echo "  - ${AGENTS}"
 echo "  - ${PROFILE}"
+echo "  - ${MARKER_FILE}"
 echo
 echo "Note: Safe updates preserve local edits by default. Changed project-specific files are not auto-overwritten during update mode."

@@ -2,8 +2,8 @@
 
 Purpose: Ship this product reliably with strict contracts and clean collaboration.
 
-Before first use, run:
-- `scripts/agents/init-project-context.sh`
+One-time setup only (do not repeat each phase):
+- Run `scripts/agents/init-project-context.sh` only when `.agent-automation/context-initialized` is missing.
 
 ## Product Scope
 - Input:
