@@ -5,14 +5,14 @@ usage() {
   cat <<'USAGE'
 Usage:
   scripts/agents/promote-staging-to-main.sh \
-    [--title "Promote staging to main"] \
+    [--title "..."] \
     [--body "..."] \
     [--body-file <file>] \
     [--merge-method squash|rebase]
 
 Behavior:
   1) sync local staging and main
-  2) create or reuse PR: staging -> main
+  2) create or reuse PR: staging -> main (auto-generates title/body when omitted)
   3) wait for required PR checks
   4) merge PR (default squash)
   5) fast-forward local main
@@ -85,10 +85,69 @@ require_cmd() {
   command -v "$1" >/dev/null 2>&1 || fail "Missing required command: $1"
 }
 
-TITLE="promote(staging): sync validated staging into main"
+find_open_pr_number() {
+  local base_branch="$1"
+  local head_branch="$2"
+
+  gh pr list --state open --base "$base_branch" --json number,headRefName \
+    --jq ".[] | select(.headRefName == \"$head_branch\") | .number" \
+    | head -n1
+}
+
+build_default_promotion_title_and_body() {
+  local range="$1"
+  local max_lines=10
+  local line_count=0
+  local omitted=0
+  local first_subject=""
+  local subjects=""
+
+  subjects="$(
+    git log --no-merges --format='%s' "$range" \
+      | awk '
+          $0 !~ /^promote\(staging\):/ &&
+          $0 !~ /^Promote staging to main/ &&
+          $0 !~ /^merge main into staging/ &&
+          $0 !~ /^merge\(main->staging\):/ &&
+          $0 !~ /^Merge main into staging/ &&
+          $0 !~ /^Merge staging into/ &&
+          $0 !~ /^merge: sync staging with main/ &&
+          $0 !~ /^merge: sync .* with staging/ &&
+          !seen[$0]++
+        '
+  )"
+
+  if [ -z "$subjects" ]; then
+    DEFAULT_PROMOTION_TITLE="promote(staging): sync staging into main"
+    DEFAULT_PROMOTION_BODY="Promote validated changes from staging to main after required checks pass."
+    return
+  fi
+
+  first_subject="$(printf '%s\n' "$subjects" | sed -n '1p')"
+  DEFAULT_PROMOTION_TITLE="promote(staging): ${first_subject}"
+
+  DEFAULT_PROMOTION_BODY="Promotion summary from staging to main:\n"
+  while IFS= read -r subject; do
+    [ -n "$subject" ] || continue
+    if [ "$line_count" -lt "$max_lines" ]; then
+      DEFAULT_PROMOTION_BODY="${DEFAULT_PROMOTION_BODY}\n- ${subject}"
+      line_count=$((line_count + 1))
+    else
+      omitted=$((omitted + 1))
+    fi
+  done <<<"$subjects"
+
+  if [ "$omitted" -gt 0 ]; then
+    DEFAULT_PROMOTION_BODY="${DEFAULT_PROMOTION_BODY}\n- ...and ${omitted} more commit(s)"
+  fi
+}
+
+TITLE=""
 BODY=""
 BODY_FILE=""
 MERGE_METHOD="squash"
+DEFAULT_PROMOTION_TITLE=""
+DEFAULT_PROMOTION_BODY=""
 
 while [ "$#" -gt 0 ]; do
   case "$1" in
@@ -143,20 +202,32 @@ git pull --ff-only origin staging
 git switch main
 git pull --ff-only origin main
 
+build_default_promotion_title_and_body "main..staging"
+
+FINAL_TITLE="$TITLE"
+FINAL_BODY="$BODY"
+if [ -n "$BODY_FILE" ]; then
+  FINAL_BODY="$(cat "$BODY_FILE")"
+fi
+
+if [ -z "$FINAL_TITLE" ]; then
+  FINAL_TITLE="$DEFAULT_PROMOTION_TITLE"
+fi
+if [ -z "$FINAL_BODY" ]; then
+  FINAL_BODY="$DEFAULT_PROMOTION_BODY"
+fi
+
 echo "[2/5] Creating or reusing staging->main PR"
 PR_NUMBER=""
-if gh pr view --base main --head staging --json number >/tmp/promote_pr_view.json 2>/dev/null; then
-  PR_NUMBER="$(sed -n 's/.*"number":\([0-9][0-9]*\).*/\1/p' /tmp/promote_pr_view.json | head -n1)"
-else
-  if [ -n "$BODY_FILE" ]; then
-    PR_URL="$(gh pr create --base main --head staging --title "$TITLE" --body-file "$BODY_FILE")"
-  elif [ -n "$BODY" ]; then
-    PR_URL="$(gh pr create --base main --head staging --title "$TITLE" --body "$BODY")"
-  else
-    PR_URL="$(gh pr create --base main --head staging --title "$TITLE" --body "Promote validated changes from staging to main after required checks pass.")"
-  fi
+PR_NUMBER="$(find_open_pr_number "main" "staging" || true)"
+
+if [ -z "$PR_NUMBER" ]; then
+  PR_URL="$(gh pr create --base main --head staging --title "$FINAL_TITLE" --body "$FINAL_BODY")"
   echo "Created PR: $PR_URL"
   PR_NUMBER="$(echo "$PR_URL" | sed -n 's#.*/pull/\([0-9][0-9]*\)$#\1#p')"
+else
+  echo "Reusing open PR #$PR_NUMBER for staging -> main"
+  gh pr edit "$PR_NUMBER" --title "$FINAL_TITLE" --body "$FINAL_BODY" >/dev/null
 fi
 
 [ -n "$PR_NUMBER" ] || fail "Could not resolve PR number"
@@ -167,7 +238,11 @@ wait_for_required_checks "$PR_NUMBER"
 echo "[4/5] Merging PR #$PR_NUMBER"
 MERGE_FLAG="--squash"
 if [ "$MERGE_METHOD" = "rebase" ]; then MERGE_FLAG="--rebase"; fi
-gh pr merge "$PR_NUMBER" "$MERGE_FLAG"
+if [ "$MERGE_METHOD" = "squash" ]; then
+  gh pr merge "$PR_NUMBER" "$MERGE_FLAG" --subject "$FINAL_TITLE" --body "$FINAL_BODY"
+else
+  gh pr merge "$PR_NUMBER" "$MERGE_FLAG"
+fi
 
 echo "[5/5] Fast-forwarding local main"
 git switch main
